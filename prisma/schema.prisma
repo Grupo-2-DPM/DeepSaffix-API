@@ -11,3 +11,80 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Usuario {
+  id_usuario      Int                 @id @default(autoincrement())
+  nombre          String
+  apellido        String
+  correo          String              @unique
+  contraseña      String
+  fecha_registro  DateTime            @default(now())
+  estado_cuenta   String
+  
+  // CORRECCIÓN: Solo referencia, sin fields/references aquí
+  perfil_academico PerfilAcademico?
+  
+  intentos        IntentoSimulacro[]
+}
+
+model PerfilAcademico {
+  id_perfil          Int      @id @default(autoincrement())
+  programa_academico String
+  semestre           Int
+  fecha_actualizacion DateTime @default(now())
+  
+  // CORRECCIÓN: Solo UN lado de la relación tiene fields/references
+  usuario           Usuario?  @relation(fields: [id_usuario], references: [id_usuario])
+  id_usuario        Int?      @unique
+}
+
+model Simulacro {
+  id_simulacro      Int      @id @default(autoincrement())
+  nombre            String
+  descripcion       String?
+  duracion_minutos  Int
+  fecha_creacion    DateTime @default(now())
+  
+  intentos          IntentoSimulacro[]
+  preguntas         Pregunta[]
+}
+
+model IntentoSimulacro {
+  id_intento        Int      @id @default(autoincrement())
+  fecha_inicio      DateTime @default(now())
+  fecha_fin         DateTime?
+  puntaje_total     Float?
+  tiempo_utilizado  Int?
+  
+  usuario           Usuario  @relation(fields: [id_usuario], references: [id_usuario])
+  id_usuario        Int
+  
+  simulacro         Simulacro @relation(fields: [id_simulacro], references: [id_simulacro])
+  id_simulacro      Int
+  
+  respuestas        Respuesta[]
+}
+
+model Respuesta {
+  id_respuesta      Int      @id @default(autoincrement())
+  respuesta_usuario String
+  es_correcta       Boolean
+  
+  intento           IntentoSimulacro @relation(fields: [id_intento], references: [id_intento])
+  id_intento        Int
+  
+  pregunta          Pregunta         @relation(fields: [id_pregunta], references: [id_pregunta])
+  id_pregunta       Int
+}
+
+model Pregunta {
+  id_pregunta      Int      @id @default(autoincrement())
+  enunciado        String
+  tipo_pregunta    String
+  nivel_dificultad String
+  
+  simulacro        Simulacro @relation(fields: [id_simulacro], references: [id_simulacro])
+  id_simulacro     Int
+  
+  respuestas       Respuesta[]
+}
