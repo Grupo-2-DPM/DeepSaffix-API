@@ -3,88 +3,155 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client-js"
-}
+// =========================================
+// MODELO DE DATOS: DeepSaffix
+// Plataforma de preparación para pruebas Saber Pro
+// =========================================
 
 datasource db {
   provider = "postgresql"
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ========================
+// ENUMS
+// ========================
+
+enum EstadoCuenta {
+  ACTIVO
+  INACTIVO
+  ELIMINADO
+}
+
+enum TipoPregunta {
+  UNICA
+  MULTIPLE
+  ABIERTA
+}
+
+enum NivelDificultad {
+  BAJO
+  MEDIO
+  ALTO
+}
+
+// ========================
+// MODELO: usuario
+// ========================
+
 model Usuario {
-  id_usuario      Int                 @id @default(autoincrement())
-  nombre          String
-  apellido        String
-  correo          String              @unique
-  contraseña      String
-  fecha_registro  DateTime            @default(now())
-  estado_cuenta   String
-  
-  // CORRECCIÓN: Solo referencia, sin fields/references aquí
-  perfil_academico PerfilAcademico?
-  
+  id_usuario     Int              @id @default(autoincrement())
+  nombre         String           @db.VarChar(100)
+  apellido       String           @db.VarChar(100)
+  correo         String           @unique @db.VarChar(255)
+  contraseña     String           @db.VarChar(255)
+  fecha_registro DateTime         @default(now())
+  estado_cuenta  EstadoCuenta     @default(ACTIVO)
+
+  perfilAcademico PerfilAcademico?
   intentos        IntentoSimulacro[]
 }
 
+// ========================
+// MODELO: perfil_academico
+// 1:1 con Usuario
+// ========================
+
 model PerfilAcademico {
-  id_perfil          Int      @id @default(autoincrement())
-  programa_academico String
-  semestre           Int
+  id_perfil           Int      @id @default(autoincrement())
+  programa_academico  String   @db.VarChar(200)
+  semestre            Int
   fecha_actualizacion DateTime @default(now())
-  
-  // CORRECCIÓN: Solo UN lado de la relación tiene fields/references
-  usuario           Usuario?  @relation(fields: [id_usuario], references: [id_usuario])
-  id_usuario        Int?      @unique
+
+  id_usuario Int     @unique
+  usuario    Usuario @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
 }
+
+// ========================
+// MODELO: simulacro
+// ========================
 
 model Simulacro {
-  id_simulacro      Int      @id @default(autoincrement())
-  nombre            String
-  descripcion       String?
-  duracion_minutos  Int
-  fecha_creacion    DateTime @default(now())
-  
-  intentos          IntentoSimulacro[]
-  preguntas         Pregunta[]
+  id_simulacro     Int      @id @default(autoincrement())
+  nombre           String   @db.VarChar(200)
+  descripcion      String?  @db.Text
+  duracion_minutos Int
+  fecha_creacion   DateTime @default(now())
+
+  preguntas Pregunta[]
+  intentos  IntentoSimulacro[]
 }
 
-model IntentoSimulacro {
-  id_intento        Int      @id @default(autoincrement())
-  fecha_inicio      DateTime @default(now())
-  fecha_fin         DateTime?
-  puntaje_total     Float?
-  tiempo_utilizado  Int?
-  
-  usuario           Usuario  @relation(fields: [id_usuario], references: [id_usuario])
-  id_usuario        Int
-  
-  simulacro         Simulacro @relation(fields: [id_simulacro], references: [id_simulacro])
-  id_simulacro      Int
-  
-  respuestas        Respuesta[]
-}
-
-model Respuesta {
-  id_respuesta      Int      @id @default(autoincrement())
-  respuesta_usuario String
-  es_correcta       Boolean
-  
-  intento           IntentoSimulacro @relation(fields: [id_intento], references: [id_intento])
-  id_intento        Int
-  
-  pregunta          Pregunta         @relation(fields: [id_pregunta], references: [id_pregunta])
-  id_pregunta       Int
-}
+// ========================
+// MODELO: pregunta
+// N:1 con simulacro
+// ========================
 
 model Pregunta {
-  id_pregunta      Int      @id @default(autoincrement())
-  enunciado        String
-  tipo_pregunta    String
-  nivel_dificultad String
-  
-  simulacro        Simulacro @relation(fields: [id_simulacro], references: [id_simulacro])
-  id_simulacro     Int
-  
-  respuestas       Respuesta[]
+  id_pregunta      Int             @id @default(autoincrement())
+  enunciado        String          @db.Text
+  tipo_pregunta    TipoPregunta
+  nivel_dificultad NivelDificultad
+
+  id_simulacro Int
+  simulacro    Simulacro @relation(fields: [id_simulacro], references: [id_simulacro], onDelete: Cascade)
+
+  opciones OpcionPregunta[]
+}
+
+// ========================
+// MODELO: opcion_pregunta
+// N:1 con pregunta
+// ========================
+
+model OpcionPregunta {
+  id_opcion    Int     @id @default(autoincrement())
+  texto_opcion String  @db.Text
+  es_correcta  Boolean @default(false)
+
+  id_pregunta Int
+  pregunta    Pregunta @relation(fields: [id_pregunta], references: [id_pregunta], onDelete: Cascade)
+
+  respuestas Respuesta[]
+}
+
+// ========================
+// MODELO: intento_simulacro
+// N:1 con usuario y simulacro
+// ========================
+
+model IntentoSimulacro {
+  id_intento       Int       @id @default(autoincrement())
+  fecha_inicio     DateTime
+  fecha_fin        DateTime?
+  puntaje_total    Float?
+  tiempo_utilizado Int?
+
+  id_usuario Int
+  usuario    Usuario @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+
+  id_simulacro Int
+  simulacro    Simulacro @relation(fields: [id_simulacro], references: [id_simulacro], onDelete: Cascade)
+
+  respuestas Respuesta[]
+}
+
+// ========================
+// MODELO: respuesta
+// N:1 con intento_simulacro y opcion_pregunta
+// ========================
+
+model Respuesta {
+  id_respuesta Int @id @default(autoincrement())
+
+  id_intento Int
+  intento    IntentoSimulacro @relation(fields: [id_intento], references: [id_intento], onDelete: Cascade)
+
+  id_opcion Int
+  opcion    OpcionPregunta @relation(fields: [id_opcion], references: [id_opcion], onDelete: Cascade)
+
+  @@unique([id_intento, id_opcion])
 }
