@@ -3,12 +3,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
 import { SimulationModule } from './simulation/simulation.module';
+import { UsuariosModule } from './usuarios/usuarios.module';
+import { PerfilAcademicoModule } from './perfil-academico/perfil-academico.module';
 
 @Module({
-  imports: [PrismaModule, ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env',}), AuthModule, SimulationModule,],
+  imports: [PrismaModule, ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env', }), SimulationModule, UsuariosModule, PerfilAcademicoModule,],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
