@@ -38,21 +38,27 @@ enum NivelDificultad {
   ALTO
 }
 
+enum ResultadoLogin {
+  SUCCESS
+  FAIL
+}
+
 // ========================
 // MODELO: usuario
 // ========================
 
 model Usuario {
-  id_usuario     Int              @id @default(autoincrement())
-  nombre         String           @db.VarChar(100)
-  apellido       String           @db.VarChar(100)
-  correo         String           @unique @db.VarChar(255)
-  contraseña     String           @db.VarChar(255)
-  fecha_registro DateTime         @default(now())
-  estado_cuenta  EstadoCuenta     @default(ACTIVO)
+  id_usuario     Int          @id @default(autoincrement())
+  nombre         String       @db.VarChar(100)
+  apellido       String       @db.VarChar(100)
+  correo         String       @unique @db.VarChar(255)
+  contraseña    String       @db.VarChar(255)
+  fecha_registro DateTime     @default(now())
+  estado_cuenta  EstadoCuenta @default(ACTIVO)
 
   perfilAcademico PerfilAcademico?
   intentos        IntentoSimulacro[]
+  loginLogs       LoginLog[]
 }
 
 // ========================
@@ -154,4 +160,15 @@ model Respuesta {
   opcion    OpcionPregunta @relation(fields: [id_opcion], references: [id_opcion], onDelete: Cascade)
 
   @@unique([id_intento, id_opcion])
+}
+
+model LoginLog {
+  id_log       Int            @id @default(autoincrement())
+  correo       String         @db.VarChar(255)
+  resultado    ResultadoLogin
+  fecha        DateTime       @default(now())
+  ip           String?        @db.VarChar(45)
+  motivo_error String?
+  id_usuario   Int?
+  usuario      Usuario?       @relation(fields: [id_usuario], references: [id_usuario])
 }
