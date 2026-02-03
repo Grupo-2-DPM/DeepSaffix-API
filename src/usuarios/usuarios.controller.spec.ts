@@ -1,38 +1,19 @@
-import { Controller, Get, Post, Body, Param, HttpCode, HttpStatus, Patch } from '@nestjs/common';
-import { UsuariosService } from './usuarios.service';
-import { CreateUsuarioDto } from './dto/create-usuario.dto';
-import { UpdatePerfilDto } from './dto/update-perfil.dto';
+import { Test, TestingModule } from '@nestjs/testing';
+import { UsuariosController } from './usuarios.controller';
 
-@Controller('usuarios')
-export class UsuariosController {
-  constructor(private readonly usuariosService: UsuariosService) { }
+describe('UsuariosController', () => {
+  let controller: UsuariosController;
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createUsuarioDto: CreateUsuarioDto) {
-    return this.usuariosService.create(createUsuarioDto);
-  }
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [UsuariosController],
+      providers: [], // no necesitamos mocks por ahora
+    }).compile();
 
-  @Get()
-  async findAll() {
-    return this.usuariosService.findAll();
-  }
+    controller = module.get<UsuariosController>(UsuariosController);
+  });
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.usuariosService.findOne(+id);
-  }
-
-  @Patch(':id/perfil-academico')
-  @HttpCode(HttpStatus.OK)
-  async updatePerfil(
-    @Param('id') id: string,
-    @Body() updatePerfilDto: UpdatePerfilDto
-  ) {
-    return this.usuariosService.createOrUpdatePerfilAcademico(
-      +id,
-      updatePerfilDto.programa_academico,
-      updatePerfilDto.semestre
-    );
-  }
-}
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+});
