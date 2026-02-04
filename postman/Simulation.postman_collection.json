@@ -428,30 +428,7 @@
                 }
             },
             "response": []
-        },
-        {
-            "name": "Eliminar simulacro por id",
-            "request": {
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                    "raw": "{{base_url}}/simulation/:id",
-                    "host": [
-                        "{{base_url}}"
-                    ],
-                    "path": [
-                        "simulation",
-                        ":id"
-                    ],
-                    "variable": [
-                        {
-                            "key": "id",
-                            "value": "1"
-                        }
-                    ]
-                }
-            },
-            "response": []
         }
+        
     ]
 }
