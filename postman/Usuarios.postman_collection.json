@@ -1,0 +1,97 @@
+
+{
+  "info": {
+    "name": "DeepSaffix API - Usuarios",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Colección con endpoints para crear usuarios."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Crear usuario - Juan",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Perez\",\n  \"correo\": \"juan.perez@example.com\",\n  \"contraseña\": \"Password123\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/usuarios",
+          "host": ["{{base_url}}"],
+          "path": ["usuarios"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear usuario - María",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"María\",\n  \"apellido\": \"García\",\n  \"correo\": \"maria.garcia@example.com\",\n  \"contraseña\": \"Password1\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/usuarios",
+          "host": ["{{base_url}}"],
+          "path": ["usuarios"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear usuario - Luis",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Luis\",\n  \"apellido\": \"Martinez\",\n  \"correo\": \"luis.martinez@example.com\",\n  \"contraseña\": \"StrongPass2\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/usuarios",
+          "host": ["{{base_url}}"],
+          "path": ["usuarios"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear usuario - Ana",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Ana\",\n  \"apellido\": \"Lopez\",\n  \"correo\": \"ana.lopez@example.com\",\n  \"contraseña\": \"UserPass3\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/usuarios",
+          "host": ["{{base_url}}"],
+          "path": ["usuarios"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

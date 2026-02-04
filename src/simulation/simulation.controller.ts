@@ -1,7 +1,10 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
+	HttpCode,
+	HttpStatus,
 	Param,
 	ParseIntPipe,
 	Post,
@@ -29,5 +32,11 @@ export class SimulationController {
 	@Get(':id')
 	findOne(@Param('id', ParseIntPipe) id: number) {
 		return this.service.findOne(id);
+	}
+
+	@Delete(':id')
+	@HttpCode(204)
+	async remove(@Param('id', ParseIntPipe) id: number) {
+		await this.service.remove(id);
 	}
 }

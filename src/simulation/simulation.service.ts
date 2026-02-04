@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSimulacroDto } from './dto/create-simulacro.dto';
 
@@ -45,5 +45,13 @@ export class SimulationService {
 			where: { id_simulacro: id },
 			include: { preguntas: { include: { opciones: true } } },
 		});
+	}
+
+	async remove(id: number) {
+		const existing = await this.prisma.simulacro.findUnique({ where: { id_simulacro: id } });
+		if (!existing) throw new NotFoundException(`Simulacro con ID ${id} no encontrado`);
+
+		await this.prisma.simulacro.delete({ where: { id_simulacro: id } });
+		return;
 	}
 }
