@@ -1,0 +1,70 @@
+{
+  "info": {
+    "name": "DeepSaffix API - Simulation (fixed)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Fixed collection for simulation endpoints. Import and run with Postman or Newman."
+  },
+  "item": [
+    {
+      "name": "Crear simulacro (con preguntas y opciones)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Simulacro Saber Pro - Competencias Genéricas\",\n  \"descripcion\": \"Simulacro con preguntas tipo ICFES Saber Pro\",\n  \"duracion_minutos\": 60,\n  \"preguntas\": [\n    {\n      \"enunciado\": \"¿Cuál es 2+2?\",\n      \"tipo_pregunta\": \"UNICA\",\n      \"nivel_dificultad\": \"BAJO\",\n      \"opciones\": [\n        { \"texto_opcion\": \"3\", \"es_correcta\": false },\n        { \"texto_opcion\": \"4\", \"es_correcta\": true }\n      ]\n    },\n    {\n      \"enunciado\": \"¿Qué es pensamiento crítico?\",\n      \"tipo_pregunta\": \"UNICA\",\n      \"nivel_dificultad\": \"MEDIO\",\n      \"opciones\": [\n        { \"texto_opcion\": \"Analizar evidencia\", \"es_correcta\": true },\n        { \"texto_opcion\": \"Aceptar todo\", \"es_correcta\": false }\n      ]\n    }\n  ]\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/simulation",
+          "host": ["{{base_url}}"],
+          "path": ["simulation"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar simulacros",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/simulation",
+          "host": ["{{base_url}}"],
+          "path": ["simulation"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener simulacro por id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/simulation/:id",
+          "host": ["{{base_url}}"],
+          "path": ["simulation", ":id"],
+          "variable": [ { "key": "id", "value": "1" } ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar simulacro por id",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/simulation/:id",
+          "host": ["{{base_url}}"],
+          "path": ["simulation", ":id"],
+          "variable": [ { "key": "id", "value": "1" } ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

@@ -1,6 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSimulacroDto } from './dto/create-simulacro.dto';
+import { CreateAttemptDto } from './dto/create-attempt.dto';
+import { SubmitAnswersDto } from './dto/submit-answers.dto';
 
 @Injectable()
 export class SimulationService {
@@ -53,5 +55,78 @@ export class SimulationService {
 
 		await this.prisma.simulacro.delete({ where: { id_simulacro: id } });
 		return;
+	}
+
+
+
+	async startAttempt(createDto: CreateAttemptDto) {
+		const id_simulacro = createDto['id_simulacro'];
+
+		const usuario = await this.prisma.usuario.findUnique({ where: { id_usuario: createDto.id_usuario } });
+		if (!usuario) throw new NotFoundException('Usuario no encontrado');
+
+		const simulacro = await this.prisma.simulacro.findUnique({ where: { id_simulacro } });
+		if (!simulacro) throw new NotFoundException('Simulacro no encontrado');
+
+		try {
+			const intento = await this.prisma.intentoSimulacro.create({
+				data: {
+					id_usuario: createDto.id_usuario,
+					id_simulacro: id_simulacro,
+					fecha_inicio: new Date(),
+				},
+			});
+			return intento;
+		} catch (error) {
+			throw new InternalServerErrorException('Error creando intento');
+		}
+	}
+
+	async submitAnswers(id_intento: number, dto: SubmitAnswersDto) {
+		const intento = await this.prisma.intentoSimulacro.findUnique({ where: { id_intento } });
+		if (!intento) {
+			throw new NotFoundException('Intento no encontrado');
+		}
+
+		const opcionIds = dto.selected_option_ids;
+		const opcionesCount = await this.prisma.opcionPregunta.count({ where: { id_opcion: { in: opcionIds } } });
+		if (opcionesCount !== opcionIds.length) {
+			throw new NotFoundException('Algunas opciones no existen');
+		}
+
+		const answersData = opcionIds.map((id_opcion) => ({ id_intento: id_intento, id_opcion }));
+
+		await this.prisma.respuesta.createMany({ data: answersData, skipDuplicates: true });
+
+		return { inserted: answersData.length };
+	}
+
+	async finishAttempt(id_intento: number) {
+		const intento = await this.prisma.intentoSimulacro.findUnique({ where: { id_intento } });
+		if (!intento) throw new NotFoundException(`Intento ${id_intento} no encontrado`);
+
+		const fecha_fin = new Date();
+		const tiempoMin = Math.round((fecha_fin.getTime() - intento.fecha_inicio.getTime()) / 60000);
+
+		const correctCount = await this.prisma.respuesta.count({
+			where: { id_intento, opcion: { es_correcta: true } },
+		});
+
+		await this.prisma.intentoSimulacro.update({
+			where: { id_intento },
+			data: { fecha_fin, tiempo_utilizado: tiempoMin, puntaje_total: correctCount },
+		});
+
+		return this.prisma.intentoSimulacro.findUnique({
+			where: { id_intento },
+			include: { respuestas: { include: { opcion: true } }, usuario: true, simulacro: true },
+		});
+	}
+
+	async getAttempt(id_intento: number) {
+		return this.prisma.intentoSimulacro.findUnique({
+			where: { id_intento },
+			include: { respuestas: { include: { opcion: true } }, usuario: true, simulacro: true },
+		});
 	}
 }

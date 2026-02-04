@@ -1,0 +1,71 @@
+{
+  "info": {
+    "name": "DeepSaffix API - Simulation (fixed)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Fixed collection for simulation endpoints. Import and run with Postman or Newman."
+  },
+  "item": [
+    {
+      "name": "Iniciar intento (startAttempt)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_usuario\": 3,\n  \"id_simulacro\": 1\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/simulation/1/attempts",
+          "host": ["{{base_url}}"],
+          "path": ["simulation","1","attempts"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Enviar respuestas (submitAnswers)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"selected_option_ids\": [12, 25, 33]\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/simulation/attempts/1/answers",
+          "host": ["{{base_url}}"],
+          "path": ["simulation","attempts","1","answers"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Finalizar intento (finishAttempt)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/simulation/attempts/1/finish",
+          "host": ["{{base_url}}"],
+          "path": ["simulation","attempts","1","finish"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener intento por id (getAttempt)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/simulation/attempts/1",
+          "host": ["{{base_url}}"],
+          "path": ["simulation","attempts","1"]
+        }
+      },
+      "response": []
+    }
+    ]
+}

@@ -47,7 +47,7 @@ Endpoints principales (implementados)
 
 Esto es para que no tengan que estar creando los usuarios manualmente dentro de Postman, la carpeta se llama /postman y habra dos archivos en uno encontraran los usuarios y en el otro encontraran los simulacros. 
 
-Cómo importar en Postman !
+!Cómo importar en Postman 
 1. Abrir Postman → Import → elegir archivo → seleccionar cualquiera de los JSON en `postman/`.
 2. Configurar la variable `base_url` en la colección (por defecto `http://localhost:3000`).
 3. Ejecutar requests (asegura que la API esté corriendo y que `.env` tenga `DATABASE_URL`).
@@ -89,3 +89,29 @@ Ejemplo body (POST /simulation)
   ]
 }
 ```
+
+Realizar test:
+
+Despues de crear los simulacros ahora podran realizar un test para simular la realizacion de un simulacro,
+para ello.
+
+!! Si trabajan sobre la consola (PowerShell) pondran este comando:
+
+Invoke-RestMethod -Uri 'http://localhost:3000/simulation/1/attempts' -Method Post -ContentType 'application/json' -Body '{"id_usuario":1}' | ConvertTo-Json -Depth 5
+
+! Recuerden que simulation/1 <- aqui pondran el id del simulacro a realizar
+
+Esto lo que hara es simular el inicio de la prueba, ahora para simular las respuestas usaran este comando:
+
+Invoke-RestMethod -Uri 'http://localhost:3000/simulation/attempts/1/answers' -Method Post -ContentType 'application/json' -Body '{"selected_option_ids":[1,2,3]}' | ConvertTo-Json -Depth 5
+
+Donde:
+selected_option_ids":[1,2,3]  Seran las opciones de respuesta, estos ids de pregunta los podran ver en la base de datos de postgreSQL (pgadmin)
+
+Ahora con el comando:
+
+Invoke-RestMethod -Uri 'http://localhost:3000/simulation/attempts/1/finish' -Method Post | ConvertTo-Json -Depth 5
+
+Podran "terminar" intento
+
+Con esto ya tendran la data necesaria para las siguientes historias de usuario.
