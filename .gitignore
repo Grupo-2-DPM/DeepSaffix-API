@@ -60,3 +60,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 /postman/bksimulation.postman_collection.txt
 /postman/Simulation.fixed.postman_collection.json
 /postman/tmp_attempt.json
+/postman/intento.postman_collection.json
