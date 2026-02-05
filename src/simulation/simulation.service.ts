@@ -57,8 +57,6 @@ export class SimulationService {
 		return;
 	}
 
-
-
 	async startAttempt(createDto: CreateAttemptDto) {
 		const id_simulacro = createDto['id_simulacro'];
 
@@ -129,4 +127,11 @@ export class SimulationService {
 			include: { respuestas: { include: { opcion: true } }, usuario: true, simulacro: true },
 		});
 	}
+
+	async findAttemptsByUser(userId: number) {
+    return this.prisma.intentoSimulacro.findMany({
+        where: { id_usuario: userId },
+        include: { simulacro: true } 
+    });
+}
 }

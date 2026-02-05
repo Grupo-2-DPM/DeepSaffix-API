@@ -49,6 +49,11 @@ export class SimulationController {
 		return this.service.getAttempt(id);
 	}
 
+	@Get('users/:userId/attempts')
+	getAttemptsByUser(@Param('userId', ParseIntPipe) userId: number) {
+		return this.service.findAttemptsByUser(userId);
+	}
+
 	@Get()
 	findAll() {
 		return this.service.findAll();
@@ -64,4 +69,5 @@ export class SimulationController {
 	async remove(@Param('id', ParseIntPipe) id: number) {
 		await this.service.remove(id);
 	}
+
 }

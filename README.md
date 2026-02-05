@@ -89,7 +89,7 @@ Ejemplo body (POST /simulation)
   ]
 }
 ```
-
+--------------------------------------------------------------------------------
 Realizar test:
 
 Despues de crear los simulacros ahora podran realizar un test para simular la realizacion de un simulacro,
@@ -115,3 +115,14 @@ Invoke-RestMethod -Uri 'http://localhost:3000/simulation/attempts/1/finish' -Met
 Podran "terminar" intento
 
 Con esto ya tendran la data necesaria para las siguientes historias de usuario.
+
+--------------------------------------------------------------------------------
+Para listar los intentos realizados por un usuario especifico podran usar el siguiente comando, que en el ejemplo se usará para el usuario con id 1:
+
+Invoke-RestMethod -Uri 'http://localhost:3000/simulation/users/1/attempts' -Method Get | ConvertTo-Json -Depth 5
+
+! Recuerden cambiar el id del usuario por el que quieran consultar los intentos realizados.
+
+Esto les devolvera un listado con todos los intentos realizados por ese usuario, incluyendo detalles del simulacro asociado a cada intento.
+
+
