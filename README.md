@@ -90,7 +90,7 @@ Ejemplo body (POST /simulation)
 }
 ```
 --------------------------------------------------------------------------------
-Realizar test:
+Realizar test SIMULACRO:
 
 Despues de crear los simulacros ahora podran realizar un test para simular la realizacion de un simulacro,
 para ello.
@@ -124,5 +124,3 @@ Invoke-RestMethod -Uri 'http://localhost:3000/simulation/users/1/attempts' -Meth
 ! Recuerden cambiar el id del usuario por el que quieran consultar los intentos realizados.
 
 Esto les devolvera un listado con todos los intentos realizados por ese usuario, incluyendo detalles del simulacro asociado a cada intento.
-
-

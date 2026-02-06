@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param, HttpCode, HttpStatus, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, HttpCode, HttpStatus, Patch, Delete } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
+import { UpdatePerfilDto } from './dto/update-perfil.dto';
 
 @Controller('usuarios')
 export class UsuariosController {
@@ -30,5 +31,18 @@ export class UsuariosController {
     @HttpCode(HttpStatus.NO_CONTENT)
     async remove(@Param('id') id: string) {
         await this.usuariosService.deactivateUsuario(+id);
+    }
+
+    // Editar uno o mas datos de usuario
+    @Patch(':id')
+    async updatePerfil(@Param('id') id: string, @Body() updatePerfilDto: UpdatePerfilDto) {
+        return this.usuariosService.updateUsuario(+id, updatePerfilDto);
+    }
+
+    // Eliminar un usuario (hard delete)
+    @Delete(':id')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async hardDelete(@Param('id') id: string) {
+        await this.usuariosService.deleteUsuario(+id);
     }
 }
