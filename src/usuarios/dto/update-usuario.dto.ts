@@ -2,7 +2,7 @@ import { PartialType } from '@nestjs/mapped-types';
 import { IsNotEmpty, IsInt, Min, Max } from 'class-validator';
 import { CreateUsuarioDto } from './create-usuario.dto';
 
-export class UpdatePerfilDto extends PartialType (CreateUsuarioDto){
+export class UpdateUsuarioDto extends PartialType (CreateUsuarioDto){
     @IsNotEmpty({ message: 'El nombre es obligatorio' })
     nombre: string;
 

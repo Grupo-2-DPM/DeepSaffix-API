@@ -2,8 +2,7 @@ import { Injectable, ConflictException, NotFoundException } from '@nestjs/common
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
-import { UpdatePerfilDto } from './dto/update-perfil.dto';
-
+import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 @Injectable()
 export class UsuariosService {
   constructor(private prisma: PrismaService) { }
@@ -84,7 +83,7 @@ export class UsuariosService {
   }
 
   // Método para actualizar el perfil de un usuario
-  async updateUsuario(id_usuario: number, updateUsuarioDto: UpdatePerfilDto) {
+  async updateUsuario(id_usuario: number, updateUsuarioDto: UpdateUsuarioDto) {
     const usuario = await this.prisma.usuario.findUnique({ where: { id_usuario } });
     if (!usuario) throw new NotFoundException(`Usuario con ID ${id_usuario} no encontrado`);
 

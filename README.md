@@ -35,17 +35,35 @@ npx prisma migrate deploy
 npm run start:dev
 ```
 
-Endpoints principales (implementados)
-- `/usuarios`
-- `POST /simulacros` — crear un `Simulacro` con sus `preguntas` y `opciones` en la misma petición
-- `GET /simulacros` — listar simulacros
-- `GET /simulacros/:id` — obtener simulacro por id (incluye preguntas y opciones)
+Endpoints Usuarios
+- `POST /usuarios` — crear usuario
+- `GET /usuarios` — listar usuarios
+- `GET /usuarios/:id` — obtener usuario por id
+- `PATCH /usuarios/:id` — actualizar usuario por id
+- `DELETE /usuarios/:id` — eliminar usuario por id
+- `PATCH /usuarios/:id/desactivar` — desactivar usuario por id
+
+Endpoints Simulacros
+- `POST /simulation` — crear un `Simulacro` con sus `preguntas` y `opciones` en la misma petición
+- `GET /simulation` — listar simulation
+- `GET /simulation/:id` — obtener simulacro por id (incluye preguntas y opciones)
+- `POST /simulation/:id/intentos` — iniciar un intento de simulacro para un usuario
+- `POST /simulation/intentos/:id/respuestas` — enviar respuestas para
+- `POST /simulation/intentos/:id/finalizar` — finalizar intento y calcular resultado
+- `GET /simulation/usuarios/:userId/intentos` — listar intentos de simulation realizados por un usuario
+
+Endpoints Perfil Académico
+- `POST /perfil-academico/:id_usuario'` — crear perfil académico para un usuario 
+- `GET /perfil-academico/:id_usuario` — obtener perfil académico por id de usuario
+- `PATCH /perfil-academico/:id_usuario` — actualizar perfil académico por id de usuario
+- `DELETE /perfil-academico/:id_usuario` — eliminar perfil académico por id de usuario
 
 ! Colecciones Postman
 - Usuarios: `postman/Usuarios.postman_collection.json` — solicitudes para crear usuarios.
--- Simulation (Simulacros): `postman/Simulation.postman_collection.json` — crear/listar/obtener simulacros.
+- Simulation (Simulacros): `postman/Simulation.postman_collection.json` — crear/listar/obtener simulacros.
+- Perfil Académico: `postman/PerfilAcademico.postman_collection.json` — soliitud para crear los perfiles academicos de los usuarios.
 
-Esto es para que no tengan que estar creando los usuarios manualmente dentro de Postman, la carpeta se llama /postman y habra dos archivos en uno encontraran los usuarios y en el otro encontraran los simulacros. 
+Esto es para que no tengan que estar creando los usuarios manualmente dentro de Postman, la carpeta se llama /postman y habra tres archivos en uno encontraran los usuarios, en otro encontraran los simulacros y el otro los perfiles académicos. 
 
 !Cómo importar en Postman 
 1. Abrir Postman → Import → elegir archivo → seleccionar cualquiera de los JSON en `postman/`.
@@ -64,6 +82,9 @@ npm install --save-dev newma
 Ejecucion:
 - Para usuarios:
 npx newman run postman/Usuarios.postman_collection.json --env-var "base_url=http://localhost:3000"
+
+- Para perfiles academicos:
+npx newman run postman/Perfil.postman_collection.json --env-var "base_url=http://localhost:3000"
 
 -Para simulacros:
 npx newman run postman/Simulation.postman_collection.json --env-var "base_url=http://localhost:3000"
@@ -87,6 +108,25 @@ Ejemplo body (POST /simulacros)
       ]
     }
   ]
+}
+```
+
+Ejemplo body (POST /usuarios)
+
+```json
+{
+  "nombre": "Clara",
+  "apellido": "Martinez",
+  "correo": "clara.martinez@example.com",
+  "contraseña": "Password123."
+}
+
+Ejemplo de body (POST /perfil-academico/:id_usuario)
+
+```json
+{
+  "programa_academico": "Ingeniería de Sistemas",
+  "semestre": 6
 }
 ```
 --------------------------------------------------------------------------------
@@ -116,7 +156,6 @@ Podran "terminar" intento
 
 Con esto ya tendran la data necesaria para las siguientes historias de usuario.
 
---------------------------------------------------------------------------------
 Para listar los intentos realizados por un usuario especifico podran usar el siguiente comando, que en el ejemplo se usará para el usuario con id 1:
 
 Invoke-RestMethod -Uri 'http://localhost:3000/simulacros/usuarios/1/intentos' -Method Get | ConvertTo-Json -Depth 5

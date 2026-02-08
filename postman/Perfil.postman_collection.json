@@ -1,0 +1,92 @@
+{
+    "info": {
+        "name": "DeepSaffix API - Perfil",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "description": "Colección con endpoints para gestionar perfiles de usuarios."
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:3000",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Crear perfil - Juan",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"programa_academico\": \"Ingeniería de Sistemas\",\n  \"semestre\": 5\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/perfil/1",
+                    "host": ["{{base_url}}"],
+                    "path": ["perfil-academico", "1"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Crear perfil - María",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"programa_academico\": \"Administración de Empresas\",\n  \"semestre\": 4\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/perfil/2",
+                    "host": ["{{base_url}}"],
+                    "path": ["perfil-academico", "2"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Crear perfil - Luis",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"programa_academico\": \"Derecho\",\n  \"semestre\": 6\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/perfil/3",
+                    "host": ["{{base_url}}"],
+                    "path": ["perfil-academico", "3"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Crear perfil - Ana",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"programa_academico\": \"Medicina\",\n  \"semestre\": 7\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/perfil/4",
+                    "host": ["{{base_url}}"],
+                    "path": ["perfil-academico", "4"]
+                }
+            },
+            "response": []
+        }
+    ]
+}
