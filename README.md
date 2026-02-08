@@ -34,61 +34,91 @@ npx prisma migrate deploy
 ```bash
 npm run start:dev
 ```
+**API Endpoints**
 
-Endpoints Usuarios
-- `POST /usuarios` — crear usuario
-- `GET /usuarios` — listar usuarios
-- `GET /usuarios/:id` — obtener usuario por id
-- `PATCH /usuarios/:id` — actualizar usuario por id
-- `DELETE /usuarios/:id` — eliminar usuario por id
-- `PATCH /usuarios/:id/desactivar` — desactivar usuario por id
+---
 
-Endpoints Simulacros
-- `POST /simulation` — crear un `Simulacro` con sus `preguntas` y `opciones` en la misma petición
-- `GET /simulation` — listar simulation
-- `GET /simulation/:id` — obtener simulacro por id (incluye preguntas y opciones)
-- `POST /simulation/:id/intentos` — iniciar un intento de simulacro para un usuario
-- `POST /simulation/intentos/:id/respuestas` — enviar respuestas para
-- `POST /simulation/intentos/:id/finalizar` — finalizar intento y calcular resultado
-- `GET /simulation/usuarios/:userId/intentos` — listar intentos de simulation realizados por un usuario
+### Usuarios
 
-Endpoints Perfil Académico
-- `POST /perfil-academico/:id_usuario'` — crear perfil académico para un usuario 
-- `GET /perfil-academico/:id_usuario` — obtener perfil académico por id de usuario
-- `PATCH /perfil-academico/:id_usuario` — actualizar perfil académico por id de usuario
-- `DELETE /perfil-academico/:id_usuario` — eliminar perfil académico por id de usuario
+* `POST /usuarios` — Crear usuario
+* `GET /usuarios` — Listar usuarios
+* `GET /usuarios/:id` — Obtener usuario por ID
+* `PATCH /usuarios/:id` — Actualizar usuario por ID
+* `DELETE /usuarios/:id` — Eliminar usuario por ID
+* `PATCH /usuarios/:id/desactivar` — Desactivar usuario
 
-! Colecciones Postman
-- Usuarios: `postman/Usuarios.postman_collection.json` — solicitudes para crear usuarios.
-- Simulation (Simulacros): `postman/Simulation.postman_collection.json` — crear/listar/obtener simulacros.
-- Perfil Académico: `postman/PerfilAcademico.postman_collection.json` — soliitud para crear los perfiles academicos de los usuarios.
+---
 
-Esto es para que no tengan que estar creando los usuarios manualmente dentro de Postman, la carpeta se llama /postman y habra tres archivos en uno encontraran los usuarios, en otro encontraran los simulacros y el otro los perfiles académicos. 
+### Simulacros (Simulation)
 
-!Cómo importar en Postman 
-1. Abrir Postman → Import → elegir archivo → seleccionar cualquiera de los JSON en `postman/`.
-2. Configurar la variable `base_url` en la colección (por defecto `http://localhost:3000`).
-3. Ejecutar requests (asegura que la API esté corriendo y que `.env` tenga `DATABASE_URL`).
+* `POST /simulation` — Crear un simulacro junto con sus preguntas y opciones en una sola petición
+* `GET /simulation` — Listar simulacros
+* `GET /simulation/:id` — Obtener simulacro por ID (incluye preguntas y opciones)
+* `POST /simulation/:id/intentos` — Iniciar intento de simulacro para un usuario
+* `POST /simulation/intentos/:id/respuestas` — Enviar respuestas de un intento
+* `POST /simulation/intentos/:id/finalizar` — Finalizar intento y calcular resultado
+* `GET /simulation/usuarios/:userId/intentos` — Listar intentos de simulacros realizados por un usuario
 
-!Ojo si no quieren hacer el import a postman deberan instalar newman que les permitira ejecutar los dos archivos de la carpeta directamente desde la consola, deberan estar en el directorio raiz para hacerlo, esto se hace de la siguiente forma:
+---
 
-Instalacion:
-#Global
+### Perfil Académico
+
+* `POST /perfil-academico/:id_usuario` — Crear perfil académico de un usuario
+* `GET /perfil-academico/:id_usuario` — Obtener perfil académico por ID de usuario
+* `PATCH /perfil-academico/:id_usuario` — Actualizar perfil académico
+* `DELETE /perfil-academico/:id_usuario` — Eliminar perfil académico
+
+---
+
+**Colecciones de Postman**
+
+Ubicación: carpeta `/postman`
+
+* `Usuarios.postman_collection.json` — Requests para gestión de usuarios
+* `Simulation.postman_collection.json` — Requests para simulacros e intentos
+* `PerfilAcademico.postman_collection.json` — Requests para perfiles académicos
+
+Estas colecciones evitan crear los requests manualmente.
+
+---
+
+**Importar en Postman**
+
+1. Abrir Postman → **Import** → seleccionar archivo JSON desde `postman/`.
+2. Configurar la variable de colección `base_url` (por defecto: `http://localhost:3000`).
+3. Ejecutar las requests. Verificar que:
+
+   * La API esté en ejecución.
+   * El archivo `.env` contenga `DATABASE_URL`.
+
+---
+
+**Ejecución con Newman (sin Postman)**
+
+Requiere estar en el directorio raíz del proyecto.
+
+Instalación:
+
+```bash
+# Global
 npm install -g newman
 
-#Local
-npm install --save-dev newma
+# Local (dev)
+npm install --save-dev newman
+```
 
-Ejecucion:
-- Para usuarios:
+Ejecución:
+
+```bash
+# Usuarios
 npx newman run postman/Usuarios.postman_collection.json --env-var "base_url=http://localhost:3000"
 
-- Para perfiles academicos:
-npx newman run postman/Perfil.postman_collection.json --env-var "base_url=http://localhost:3000"
+# Perfiles académicos
+npx newman run postman/PerfilAcademico.postman_collection.json --env-var "base_url=http://localhost:3000"
 
--Para simulacros:
+# Simulacros
 npx newman run postman/Simulation.postman_collection.json --env-var "base_url=http://localhost:3000"
-
+```
 
 Ejemplo body (POST /simulacros)
 
