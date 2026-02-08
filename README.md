@@ -122,7 +122,7 @@ Ejemplo body (POST /usuarios)
 }
 
 Ejemplo de body (POST /perfil-academico/:id_usuario)
-
+```
 ```json
 {
   "programa_academico": "Ingeniería de Sistemas",
@@ -130,36 +130,63 @@ Ejemplo de body (POST /perfil-academico/:id_usuario)
 }
 ```
 --------------------------------------------------------------------------------
-Realizar test SIMULACRO:
+**Realizar test de SIMULACRO**
 
-Despues de crear los simulacros ahora podran realizar un test para simular la realizacion de un simulacro,
-para ello.
+Después de crear los simulacros, es posible ejecutar un test para simular la realización de uno.
 
-!! Si trabajan sobre la consola (PowerShell) pondran este comando:
+---
 
+### 1. Iniciar un intento de simulacro
+
+Si trabajan desde la consola (PowerShell), usen:
+
+```powershell
 Invoke-RestMethod -Uri 'http://localhost:3000/simulacros/1/intentos' -Method Post -ContentType 'application/json' -Body '{"id_usuario":1}' | ConvertTo-Json -Depth 5
+```
 
-! Recuerden que simulation/1 <- aqui pondran el id del simulacro a realizar
+**Importante:**
+`/simulacros/1` → Reemplacen **1** por el ID del simulacro que desean realizar.
 
-Esto lo que hara es simular el inicio de la prueba, ahora para simular las respuestas usaran este comando:
+Este comando simula el **inicio de la prueba**.
 
+---
+
+### 2. Enviar respuestas del simulacro
+
+```powershell
 Invoke-RestMethod -Uri 'http://localhost:3000/simulacros/intentos/1/respuestas' -Method Post -ContentType 'application/json' -Body '{"selected_option_ids":[1,2,3]}' | ConvertTo-Json -Depth 5
+```
 
-Donde:
-selected_option_ids":[1,2,3]  Seran las opciones de respuesta, estos ids de pregunta los podran ver en la base de datos de postgreSQL (pgadmin)
+**Donde:**
 
-Ahora con el comando:
+* `intentos/1` → ID del intento generado al iniciar el simulacro.
+* `"selected_option_ids":[1,2,3]` → IDs de las opciones seleccionadas como respuesta.
 
+Los IDs de opciones pueden consultarse en la base de datos PostgreSQL (pgAdmin).
+
+---
+
+### 3. Finalizar el intento
+
+```powershell
 Invoke-RestMethod -Uri 'http://localhost:3000/simulacros/intentos/1/finalizar' -Method Post | ConvertTo-Json -Depth 5
+```
 
-Podran "terminar" intento
+Este comando marca el intento como **terminado**.
 
-Con esto ya tendran la data necesaria para las siguientes historias de usuario.
+Con esto se genera la información necesaria para las siguientes historias de usuario.
 
-Para listar los intentos realizados por un usuario especifico podran usar el siguiente comando, que en el ejemplo se usará para el usuario con id 1:
+---
 
+### 4. Listar intentos de un usuario
+
+Para consultar los intentos realizados por un usuario específico (ejemplo: usuario ID 1):
+
+```powershell
 Invoke-RestMethod -Uri 'http://localhost:3000/simulacros/usuarios/1/intentos' -Method Get | ConvertTo-Json -Depth 5
+```
 
-! Recuerden cambiar el id del usuario por el que quieran consultar los intentos realizados.
+**Nota:**
+Reemplacen el **ID del usuario** según corresponda.
 
-Esto les devolvera un listado con todos los intentos realizados por ese usuario, incluyendo detalles del simulacro asociado a cada intento.
+Este endpoint devuelve un listado con todos los intentos del usuario, incluyendo los detalles del simulacro asociado a cada uno.
