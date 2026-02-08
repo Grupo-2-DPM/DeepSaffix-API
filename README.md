@@ -1,6 +1,6 @@
 # DeepSaffix API — Instrucciones rápidas
 
-En este README explico cómo levantar la API localmente y cómo probar los endpoints de `usuarios` y `simulacros` usando las colecciones de Postman incluidas en `postman/`.
+Para levantar la API localmente y probar los endpoints de `usuarios` y `simulacros`, usando las colecciones de Postman incluidas en `postman/`.
 
 Requisitos
 - Postgres (la conexión está en `.env` como `DATABASE_URL`), por seguridad esta se encuentra previamente puesta en .gitignore tendran que crearla en caso de no tenerla y pondran esta linea de codigo:
