@@ -16,7 +16,7 @@ import { CreateSimulacroDto } from './dto/create-simulacro.dto';
 import { CreateAttemptDto } from './dto/create-attempt.dto';
 import { SubmitAnswersDto } from './dto/submit-answers.dto';
 
-@Controller('simulation')
+@Controller('simulacros')
 export class SimulationController {
 	constructor(private readonly service: SimulationService) {}
 
@@ -28,7 +28,7 @@ export class SimulationController {
 	}
 
 	// Endpoint para iniciar un nuevo intento de simulacro
-	@Post(':id/attempts')
+	@Post(':id/intentos')
 	@UsePipes(new ValidationPipe({ transform: true }))
 	startAttempt(@Param('id', ParseIntPipe) id: number, @Body() body: CreateAttemptDto) {
 		(body as any).id_simulacro = id;
@@ -36,26 +36,26 @@ export class SimulationController {
 	}
 
 	// Endpoint para enviar respuestas de un intento
-	@Post('attempts/:id/answers')
+	@Post('intentos/:id/respuestas')
 	@UsePipes(new ValidationPipe({ transform: true }))
 	submitAnswers(@Param('id', ParseIntPipe) id: number, @Body() body: SubmitAnswersDto) {
 		return this.service.submitAnswers(id, body);
 	}
 
 	// Endpoint para finalizar un intento de simulacro
-	@Post('attempts/:id/finish')
+	@Post('intentos/:id/finalizar')
 	async finishAttempt(@Param('id', ParseIntPipe) id: number) {
 		return this.service.finishAttempt(id);
 	}
 
 	// Endpoint para obtener un intento por su ID
-	@Get('attempts/:id')
+	@Get('intentos/:id')
 	getAttempt(@Param('id', ParseIntPipe) id: number) {
 		return this.service.getAttempt(id);
 	}
 
 	// Endpoint para obtener los intentos realizados por un usuario
-	@Get('users/:userId/attempts')
+	@Get('usuarios/:userId/intentos')
 	getAttemptsByUser(@Param('userId', ParseIntPipe) userId: number) {
 		return this.service.findAttemptsByUser(userId);
 	}

@@ -1,6 +1,6 @@
 {
     "info": {
-        "name": "DeepSaffix API - Simulation (fixed)",
+        "name": "DeepSaffix API - Simulacros (fixed)",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
         "description": "Fixed collection for simulation endpoints. Use this if the original file is malformed."
     },
@@ -377,12 +377,12 @@
                     }
                 },
                 "url": {
-                    "raw": "{{base_url}}/simulation",
+                        "raw": "{{base_url}}/simulacros",
                     "host": [
                         "{{base_url}}"
                     ],
                     "path": [
-                        "simulation"
+                        "simulacros"
                     ]
                 }
             },
@@ -394,13 +394,13 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                    "raw": "{{base_url}}/simulation",
+                    "raw": "{{base_url}}/simulacros",
                     "host": [
                         "{{base_url}}"
                     ],
                     "path": [
-                        "simulation"
-                    ]
+                        "simulacros"
+                    ],
                 }
             },
             "response": []
@@ -411,12 +411,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                    "raw": "{{base_url}}/simulation/:id",
+                    "raw": "{{base_url}}/simulacros/:id",
                     "host": [
                         "{{base_url}}"
                     ],
                     "path": [
-                        "simulation",
+                        "simulacros",
                         ":id"
                     ],
                     "variable": [
