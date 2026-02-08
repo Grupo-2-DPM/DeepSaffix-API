@@ -4,9 +4,9 @@ En este README explico cómo levantar la API localmente y cómo probar los endpo
 
 Requisitos
 - Postgres (la conexión está en `.env` como `DATABASE_URL`), por seguridad esta se encuentra previamente puesta en .gitignore tendran que crearla en caso de no tenerla y pondran esta linea de codigo:
-
+``` .env
 DATABASE_URL="postgresql://postgres:<sucontraseña>@localhost:5432/<nombrebdPostgreSQL>?schema=public"
-
+```
 Pasos para ejecutar localmente
 
 1. Instalar dependencias
