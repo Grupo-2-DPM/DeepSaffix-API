@@ -76,7 +76,7 @@ Ubicación: carpeta `/postman`
 
 * `Usuarios.postman_collection.json` — Requests para gestión de usuarios
 * `Simulation.postman_collection.json` — Requests para simulacros e intentos
-* `PerfilAcademico.postman_collection.json` — Requests para perfiles académicos
+* `Perfil.postman_collection.json` — Requests para perfiles académicos
 
 Estas colecciones evitan crear los requests manualmente.
 
@@ -114,7 +114,7 @@ Ejecución:
 npx newman run postman/Usuarios.postman_collection.json --env-var "base_url=http://localhost:3000"
 
 # Perfiles académicos
-npx newman run postman/PerfilAcademico.postman_collection.json --env-var "base_url=http://localhost:3000"
+npx newman run postman/Perfil.postman_collection.json --env-var "base_url=http://localhost:3000"
 
 # Simulacros
 npx newman run postman/Simulation.postman_collection.json --env-var "base_url=http://localhost:3000"
