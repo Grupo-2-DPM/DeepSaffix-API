@@ -129,4 +129,12 @@ export class SimulationService {
 			include: { respuestas: { include: { opcion: true } }, usuario: true, simulacro: true },
 		});
 	}
+
+	async findAttemptsByUser(id_usuario: number) {
+		return this.prisma.intentoSimulacro.findMany({
+			where: { id_usuario },
+			orderBy: { fecha_inicio: 'desc' },
+			include: { simulacro: true, respuestas: { include: { opcion: true } } },
+		});
+	}
 }

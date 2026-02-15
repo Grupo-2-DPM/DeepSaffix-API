@@ -49,6 +49,11 @@ export class SimulationController {
 		return this.service.getAttempt(id);
 	}
 
+	@Get('attempts/user/:id')
+	getAttemptsByUser(@Param('id', ParseIntPipe) id: number) {
+		return this.service.findAttemptsByUser(id);
+	}
+
 	@Get()
 	findAll() {
 		return this.service.findAll();
