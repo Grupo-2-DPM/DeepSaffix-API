@@ -8,6 +8,7 @@ import { SubmitAnswersDto } from './dto/submit-answers.dto';
 export class SimulationService {
 	constructor(private prisma: PrismaService) {}
 
+	// Método para crear un nuevo simulacro
 	async create(createDto: CreateSimulacroDto) {
 		const simulacro = await this.prisma.simulacro.create({
 			data: {
@@ -36,12 +37,14 @@ export class SimulationService {
 		return simulacro;
 	}
 
+	// Método para listar todos los simulacros
 	async findAll() {
 		return this.prisma.simulacro.findMany({
 			include: { preguntas: { include: { opciones: true } } },
 		});
 	}
 
+	// Método para obtener un simulacro por su ID
 	async findOne(id: number) {
 		return this.prisma.simulacro.findUnique({
 			where: { id_simulacro: id },
@@ -49,6 +52,7 @@ export class SimulationService {
 		});
 	}
 
+	// Método para eliminar un simulacro por su ID
 	async remove(id: number) {
 		const existing = await this.prisma.simulacro.findUnique({ where: { id_simulacro: id } });
 		if (!existing) throw new NotFoundException(`Simulacro con ID ${id} no encontrado`);
@@ -57,8 +61,7 @@ export class SimulationService {
 		return;
 	}
 
-
-
+	// Método para iniciar un nuevo intento de simulacro
 	async startAttempt(createDto: CreateAttemptDto) {
 		const id_simulacro = createDto['id_simulacro'];
 
@@ -82,6 +85,7 @@ export class SimulationService {
 		}
 	}
 
+	// Método para enviar respuestas de un intento
 	async submitAnswers(id_intento: number, dto: SubmitAnswersDto) {
 		const intento = await this.prisma.intentoSimulacro.findUnique({ where: { id_intento } });
 		if (!intento) {
@@ -101,6 +105,7 @@ export class SimulationService {
 		return { inserted: answersData.length };
 	}
 
+	// Método para finalizar un intento de simulacro
 	async finishAttempt(id_intento: number) {
 		const intento = await this.prisma.intentoSimulacro.findUnique({ where: { id_intento } });
 		if (!intento) throw new NotFoundException(`Intento ${id_intento} no encontrado`);
@@ -123,6 +128,7 @@ export class SimulationService {
 		});
 	}
 
+	// Método para obtener un intento por su ID
 	async getAttempt(id_intento: number) {
 		return this.prisma.intentoSimulacro.findUnique({
 			where: { id_intento },
@@ -137,4 +143,11 @@ export class SimulationService {
 			include: { simulacro: true, respuestas: { include: { opcion: true } } },
 		});
 	}
+	// Método para obtener los intentos realizados por un usuario
+	async findAttemptsByUser(userId: number) {
+    return this.prisma.intentoSimulacro.findMany({
+        where: { id_usuario: userId },
+        include: { simulacro: true } 
+    });
+}
 }

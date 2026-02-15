@@ -2,11 +2,12 @@ import { Injectable, ConflictException, NotFoundException } from '@nestjs/common
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
-
+import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 @Injectable()
 export class UsuariosService {
   constructor(private prisma: PrismaService) { }
 
+  // Método para crear un nuevo usuario  
   async create(createUsuarioDto: CreateUsuarioDto) {
     const existingUser = await this.prisma.usuario.findUnique({
       where: { correo: createUsuarioDto.correo },
@@ -28,6 +29,7 @@ export class UsuariosService {
     return usuarioSinPassword;
   }
 
+  // Método para listar todos los usuarios
   async findAll() {
     return this.prisma.usuario.findMany({
       select: {
@@ -43,6 +45,7 @@ export class UsuariosService {
     });
   }
 
+  // Método para obtener un usuario por su ID
   async findOne(id: number) {
     const usuario = await this.prisma.usuario.findUnique({
       where: { id_usuario: id },
@@ -60,6 +63,7 @@ export class UsuariosService {
     return usuario;
   }
 
+  // Método para desactivar un usuario
   async deactivateUsuario(id_usuario: number) {
     const usuario = await this.prisma.usuario.findUnique({ where: { id_usuario } });
     if (!usuario) throw new NotFoundException(`Usuario con ID ${id_usuario} no encontrado`);
@@ -67,6 +71,25 @@ export class UsuariosService {
     return this.prisma.usuario.update({
       where: { id_usuario },
       data: { estado_cuenta: 'INACTIVO' },
+    });
+  }
+
+    // Método para eliminar un usuario
+  async deleteUsuario(id_usuario: number) {
+    const usuario = await this.prisma.usuario.findUnique({ where: { id_usuario } });
+    if (!usuario) throw new NotFoundException(`Usuario con ID ${id_usuario} no encontrado`);
+
+    return this.prisma.usuario.delete({ where: { id_usuario } });
+  }
+
+  // Método para actualizar el perfil de un usuario
+  async updateUsuario(id_usuario: number, updateUsuarioDto: UpdateUsuarioDto) {
+    const usuario = await this.prisma.usuario.findUnique({ where: { id_usuario } });
+    if (!usuario) throw new NotFoundException(`Usuario con ID ${id_usuario} no encontrado`);
+
+    return this.prisma.usuario.update({
+      where: { id_usuario },
+      data: updateUsuarioDto,
     });
   }
 }

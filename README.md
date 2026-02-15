@@ -1,12 +1,12 @@
 # DeepSaffix API — Instrucciones rápidas
 
-En este README explico cómo levantar la API localmente y cómo probar los endpoints de `usuarios` y `simulation` usando las colecciones de Postman incluidas en `postman/`.
+Para levantar la API localmente y probar los endpoints de `usuarios` y `simulacros`, usando las colecciones de Postman incluidas en `postman/`.
 
 Requisitos
 - Postgres (la conexión está en `.env` como `DATABASE_URL`), por seguridad esta se encuentra previamente puesta en .gitignore tendran que crearla en caso de no tenerla y pondran esta linea de codigo:
-
+``` .env
 DATABASE_URL="postgresql://postgres:<sucontraseña>@localhost:5432/<nombrebdPostgreSQL>?schema=public"
-
+```
 Pasos para ejecutar localmente
 
 1. Instalar dependencias
@@ -34,42 +34,93 @@ npx prisma migrate deploy
 ```bash
 npm run start:dev
 ```
+**API Endpoints**
 
-Endpoints principales (implementados)
-- `/usuarios`
-- `POST /simulation` — crear un `Simulacro` con sus `preguntas` y `opciones` en la misma petición
-- `GET /simulation` — listar simulacros
-- `GET /simulation/:id` — obtener simulacro por id (incluye preguntas y opciones)
+---
 
-! Colecciones Postman
-- Usuarios: `postman/Usuarios.postman_collection.json` — solicitudes para crear usuarios.
-- Simulation: `postman/Simulation.postman_collection.json` — crear/listar/obtener simulacros.
+### Usuarios
 
-Esto es para que no tengan que estar creando los usuarios manualmente dentro de Postman, la carpeta se llama /postman y habra dos archivos en uno encontraran los usuarios y en el otro encontraran los simulacros. 
+* `POST /usuarios` — Crear usuario
+* `GET /usuarios` — Listar usuarios
+* `GET /usuarios/:id` — Obtener usuario por ID
+* `PATCH /usuarios/:id` — Actualizar usuario por ID
+* `DELETE /usuarios/:id` — Eliminar usuario por ID
+* `PATCH /usuarios/:id/desactivar` — Desactivar usuario
 
-!Cómo importar en Postman 
-1. Abrir Postman → Import → elegir archivo → seleccionar cualquiera de los JSON en `postman/`.
-2. Configurar la variable `base_url` en la colección (por defecto `http://localhost:3000`).
-3. Ejecutar requests (asegura que la API esté corriendo y que `.env` tenga `DATABASE_URL`).
+---
 
-!Ojo si no quieren hacer el import a postman deberan instalar newman que les permitira ejecutar los dos archivos de la carpeta directamente desde la consola, deberan estar en el directorio raiz para hacerlo, esto se hace de la siguiente forma:
+### Simulacros (Simulation)
 
-Instalacion:
-#Global
+* `POST /simulation` — Crear un simulacro junto con sus preguntas y opciones en una sola petición
+* `GET /simulation` — Listar simulacros
+* `GET /simulation/:id` — Obtener simulacro por ID (incluye preguntas y opciones)
+* `POST /simulation/:id/intentos` — Iniciar intento de simulacro para un usuario
+* `POST /simulation/intentos/:id/respuestas` — Enviar respuestas de un intento
+* `POST /simulation/intentos/:id/finalizar` — Finalizar intento y calcular resultado
+* `GET /simulation/usuarios/:userId/intentos` — Listar intentos de simulacros realizados por un usuario
+
+---
+
+### Perfil Académico
+
+* `POST /perfil-academico/:id_usuario` — Crear perfil académico de un usuario
+* `GET /perfil-academico/:id_usuario` — Obtener perfil académico por ID de usuario
+* `PATCH /perfil-academico/:id_usuario` — Actualizar perfil académico
+* `DELETE /perfil-academico/:id_usuario` — Eliminar perfil académico
+
+---
+
+**Colecciones de Postman**
+
+Ubicación: carpeta `/postman`
+
+* `Usuarios.postman_collection.json` — Requests para gestión de usuarios
+* `Simulation.postman_collection.json` — Requests para simulacros e intentos
+* `Perfil.postman_collection.json` — Requests para perfiles académicos
+
+Estas colecciones evitan crear los requests manualmente.
+
+---
+
+**Importar en Postman**
+
+1. Abrir Postman → **Import** → seleccionar archivo JSON desde `postman/`.
+2. Configurar la variable de colección `base_url` (por defecto: `http://localhost:3000`).
+3. Ejecutar las requests. Verificar que:
+
+   * La API esté en ejecución.
+   * El archivo `.env` contenga `DATABASE_URL`.
+
+---
+
+**Ejecución con Newman (sin Postman)**
+
+Requiere estar en el directorio raíz del proyecto.
+
+Instalación:
+
+```bash
+# Global
 npm install -g newman
 
-#Local
-npm install --save-dev newma
+# Local (dev)
+npm install --save-dev newman
+```
 
-Ejecucion:
-- Para usuarios:
+Ejecución:
+
+```bash
+# Usuarios
 npx newman run postman/Usuarios.postman_collection.json --env-var "base_url=http://localhost:3000"
 
--Para simulacros:
+# Perfiles académicos
+npx newman run postman/Perfil.postman_collection.json --env-var "base_url=http://localhost:3000"
+
+# Simulacros
 npx newman run postman/Simulation.postman_collection.json --env-var "base_url=http://localhost:3000"
+```
 
-
-Ejemplo body (POST /simulation)
+Ejemplo body (POST /simulacros)
 
 ```json
 {
@@ -90,28 +141,82 @@ Ejemplo body (POST /simulation)
 }
 ```
 
-Realizar test:
+Ejemplo body (POST /usuarios)
 
-Despues de crear los simulacros ahora podran realizar un test para simular la realizacion de un simulacro,
-para ello.
+```json
+{
+  "nombre": "Clara",
+  "apellido": "Martinez",
+  "correo": "clara.martinez@example.com",
+  "contraseña": "Password123."
+}
 
-!! Si trabajan sobre la consola (PowerShell) pondran este comando:
+Ejemplo de body (POST /perfil-academico/:id_usuario)
+```
+```json
+{
+  "programa_academico": "Ingeniería de Sistemas",
+  "semestre": 6
+}
+```
+--------------------------------------------------------------------------------
+**Realizar test de SIMULACRO**
 
-Invoke-RestMethod -Uri 'http://localhost:3000/simulation/1/attempts' -Method Post -ContentType 'application/json' -Body '{"id_usuario":1}' | ConvertTo-Json -Depth 5
+Después de crear los simulacros, es posible ejecutar un test para simular la realización de uno.
 
-! Recuerden que simulation/1 <- aqui pondran el id del simulacro a realizar
+---
 
-Esto lo que hara es simular el inicio de la prueba, ahora para simular las respuestas usaran este comando:
+### 1. Iniciar un intento de simulacro
 
-Invoke-RestMethod -Uri 'http://localhost:3000/simulation/attempts/1/answers' -Method Post -ContentType 'application/json' -Body '{"selected_option_ids":[1,2,3]}' | ConvertTo-Json -Depth 5
+Si trabajan desde la consola (PowerShell), usen:
 
-Donde:
-selected_option_ids":[1,2,3]  Seran las opciones de respuesta, estos ids de pregunta los podran ver en la base de datos de postgreSQL (pgadmin)
+```powershell
+Invoke-RestMethod -Uri 'http://localhost:3000/simulacros/1/intentos' -Method Post -ContentType 'application/json' -Body '{"id_usuario":1}' | ConvertTo-Json -Depth 5
+```
 
-Ahora con el comando:
+**Importante:**
+`/simulacros/1` → Reemplacen **1** por el ID del simulacro que desean realizar.
 
-Invoke-RestMethod -Uri 'http://localhost:3000/simulation/attempts/1/finish' -Method Post | ConvertTo-Json -Depth 5
+Este comando simula el **inicio de la prueba**.
 
-Podran "terminar" intento
+---
 
-Con esto ya tendran la data necesaria para las siguientes historias de usuario.
+### 2. Enviar respuestas del simulacro
+
+```powershell
+Invoke-RestMethod -Uri 'http://localhost:3000/simulacros/intentos/1/respuestas' -Method Post -ContentType 'application/json' -Body '{"selected_option_ids":[1,2,3]}' | ConvertTo-Json -Depth 5
+```
+
+**Donde:**
+
+* `intentos/1` → ID del intento generado al iniciar el simulacro.
+* `"selected_option_ids":[1,2,3]` → IDs de las opciones seleccionadas como respuesta.
+
+Los IDs de opciones pueden consultarse en la base de datos PostgreSQL (pgAdmin).
+
+---
+
+### 3. Finalizar el intento
+
+```powershell
+Invoke-RestMethod -Uri 'http://localhost:3000/simulacros/intentos/1/finalizar' -Method Post | ConvertTo-Json -Depth 5
+```
+
+Este comando marca el intento como **terminado**.
+
+Con esto se genera la información necesaria para las siguientes historias de usuario.
+
+---
+
+### 4. Listar intentos de un usuario
+
+Para consultar los intentos realizados por un usuario específico (ejemplo: usuario ID 1):
+
+```powershell
+Invoke-RestMethod -Uri 'http://localhost:3000/simulacros/usuarios/1/intentos' -Method Get | ConvertTo-Json -Depth 5
+```
+
+**Nota:**
+Reemplacen el **ID del usuario** según corresponda.
+
+Este endpoint devuelve un listado con todos los intentos del usuario, incluyendo los detalles del simulacro asociado a cada uno.
