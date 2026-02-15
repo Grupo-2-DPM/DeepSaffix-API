@@ -54,6 +54,11 @@ export class SimulationController {
 		return this.service.getAttempt(id);
 	}
 
+	@Get('attempts/user/:id')
+	getAttemptsByUser(@Param('id', ParseIntPipe) id: number) {
+		return this.service.findAttemptsByUser(id);
+	}
+
 	// Endpoint para obtener los intentos realizados por un usuario
 	@Get('usuarios/:userId/intentos')
 	getAttemptsByUser(@Param('userId', ParseIntPipe) userId: number) {

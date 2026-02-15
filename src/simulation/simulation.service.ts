@@ -136,6 +136,13 @@ export class SimulationService {
 		});
 	}
 
+	async findAttemptsByUser(id_usuario: number) {
+		return this.prisma.intentoSimulacro.findMany({
+			where: { id_usuario },
+			orderBy: { fecha_inicio: 'desc' },
+			include: { simulacro: true, respuestas: { include: { opcion: true } } },
+		});
+	}
 	// Método para obtener los intentos realizados por un usuario
 	async findAttemptsByUser(userId: number) {
     return this.prisma.intentoSimulacro.findMany({
