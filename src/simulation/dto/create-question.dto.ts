@@ -1,4 +1,10 @@
-import { IsArray, IsEnum, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateOptionDto } from './create-option.dto';
 import { TipoPregunta, NivelDificultad } from '@prisma/client';

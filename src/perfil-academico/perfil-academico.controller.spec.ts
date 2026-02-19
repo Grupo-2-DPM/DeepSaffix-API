@@ -10,10 +10,14 @@ describe('PerfilAcademicoController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PerfilAcademicoController],
-      providers: [{ provide: PerfilAcademicoService, useValue: mockPerfilService }],
+      providers: [
+        { provide: PerfilAcademicoService, useValue: mockPerfilService },
+      ],
     }).compile();
 
-    controller = module.get<PerfilAcademicoController>(PerfilAcademicoController);
+    controller = module.get<PerfilAcademicoController>(
+      PerfilAcademicoController,
+    );
   });
 
   it('should be defined', () => {

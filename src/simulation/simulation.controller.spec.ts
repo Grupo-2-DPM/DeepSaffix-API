@@ -10,7 +10,9 @@ describe('SimulationController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SimulationController],
-      providers: [{ provide: SimulationService, useValue: mockSimulationService }],
+      providers: [
+        { provide: SimulationService, useValue: mockSimulationService },
+      ],
     }).compile();
 
     controller = module.get<SimulationController>(SimulationController);

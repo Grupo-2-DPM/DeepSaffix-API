@@ -6,7 +6,7 @@ import { ResultadoLogin } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async login(dto: LoginDto, ip?: string) {
     const usuario = await this.prisma.usuario.findUnique({
@@ -14,8 +14,13 @@ export class AuthService {
     });
 
     if (!usuario) {
-      await this.registrarLog(dto.correo, ResultadoLogin.FAIL, 'Usuario no existe', ip);
-      throw new UnauthorizedException('Credenciales inválidas');
+      await this.registrarLog(
+        dto.correo,
+        ResultadoLogin.FAIL,
+        'Usuario no existe',
+        ip,
+      );
+      throw new UnauthorizedException('Credenciales inválidas 001');
     }
 
     if (usuario.estado_cuenta !== 'ACTIVO') {
@@ -26,9 +31,8 @@ export class AuthService {
         ip,
         usuario.id_usuario,
       );
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException('Credenciales inválidas 002');
     }
-
 
     const passwordOk = await bcrypt.compare(dto.contraseña, usuario.contraseña);
 
@@ -40,7 +44,7 @@ export class AuthService {
         ip,
         usuario.id_usuario,
       );
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException('Credenciales inválidas 003');
     }
 
     await this.registrarLog(
@@ -51,7 +55,7 @@ export class AuthService {
       usuario.id_usuario,
     );
 
-    const { contraseña, ...userSafe } = usuario;
+    const { ...userSafe } = usuario;
     return userSafe;
   }
 

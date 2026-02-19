@@ -4,6 +4,6 @@ import { PerfilAcademicoController } from './perfil-academico.controller';
 
 @Module({
   providers: [PerfilAcademicoService],
-  controllers: [PerfilAcademicoController]
+  controllers: [PerfilAcademicoController],
 })
 export class PerfilAcademicoModule {}
