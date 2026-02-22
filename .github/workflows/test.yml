@@ -1,0 +1,62 @@
+name: CI - Tests
+
+# Ejecutar el workflow en pushes a la rama 'test' y en pull requests dirigidos a 'test'
+on:
+  push:
+    branches: [ test ]
+  pull_request:
+    branches: [ test ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # Servicio de PostgreSQL para las pruebas
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'  # o la versión que uses
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Generar cliente Prisma
+        run: npx prisma generate
+
+      - name: Ejecutar migraciones en la base de pruebas
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+
+      - name: Ejecutar tests unitarios
+        run: npm run test
+        env:
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}  # ejemplo de secreto
+
+      - name: Ejecutar tests e2e
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
