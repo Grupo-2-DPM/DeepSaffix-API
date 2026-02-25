@@ -1,4 +1,4 @@
-import { IsString, IsInt, Min, IsOptional } from 'class-validator';
+import { IsString, IsInt, Min, IsOptional, Max } from 'class-validator';
 
 export class UpdatePerfilDto {
   @IsOptional()
@@ -8,5 +8,6 @@ export class UpdatePerfilDto {
   @IsOptional()
   @IsInt()
   @Min(1)
+  @Max(10)
   semestre?: number;
 }

@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSimulacroDto } from './dto/create-simulacro.dto';
@@ -103,11 +104,28 @@ export class SimulationService {
   async submitAnswers(id_intento: number, dto: SubmitAnswersDto) {
     const intento = await this.prisma.intentoSimulacro.findUnique({
       where: { id_intento },
+      include: { simulacro: true },
     });
+
     if (!intento) {
       throw new NotFoundException('Intento no encontrado');
     }
 
+    // Validación: intento ya finalizado
+    if (intento.fecha_fin) {
+      throw new BadRequestException(
+        'Este intento ya ha sido finalizado, lo sentimos',
+      );
+    }
+
+    // Validación: tiempo máximo del simulacro
+    const tiempoTranscurrido =
+      (new Date().getTime() - intento.fecha_inicio.getTime()) / 60000;
+    if (tiempoTranscurrido > intento.simulacro.duracion_minutos) {
+      throw new BadRequestException('Se ha excedido el tiempo del simulacro');
+    }
+
+    // Validar que todas las opciones existan
     const opcionIds = dto.selected_option_ids;
     const opcionesCount = await this.prisma.opcionPregunta.count({
       where: { id_opcion: { in: opcionIds } },
@@ -116,6 +134,7 @@ export class SimulationService {
       throw new NotFoundException('Algunas opciones no existen');
     }
 
+    // Preparar datos para insertar
     const answersData = opcionIds.map((id_opcion) => ({
       id_intento: id_intento,
       id_opcion,
@@ -133,14 +152,27 @@ export class SimulationService {
   async finishAttempt(id_intento: number) {
     const intento = await this.prisma.intentoSimulacro.findUnique({
       where: { id_intento },
+      include: { simulacro: true },
     });
+
     if (!intento)
       throw new NotFoundException(`Intento ${id_intento} no encontrado`);
 
+    // Validación: no finalizar dos veces
+    if (intento.fecha_fin) {
+      throw new BadRequestException(
+        'Este intento ya fue finalizado previamente',
+      );
+    }
+
     const fecha_fin = new Date();
-    const tiempoMin = Math.round(
+    // Calcular tiempo usado pero no más que la duración máxima
+    let tiempoMin = Math.round(
       (fecha_fin.getTime() - intento.fecha_inicio.getTime()) / 60000,
     );
+    if (tiempoMin > intento.simulacro.duracion_minutos) {
+      tiempoMin = intento.simulacro.duracion_minutos;
+    }
 
     const correctCount = await this.prisma.respuesta.count({
       where: { id_intento, opcion: { es_correcta: true } },
@@ -164,7 +196,6 @@ export class SimulationService {
       },
     });
   }
-
   // Método para obtener un intento por su ID
   async getAttempt(id_intento: number) {
     return this.prisma.intentoSimulacro.findUnique({
