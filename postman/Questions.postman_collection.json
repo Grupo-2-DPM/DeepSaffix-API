@@ -1,0 +1,199 @@
+{
+  "info": {
+    "name": "DeepSaffix API - Preguntas (Banco)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Colección para poblar la base de datos con preguntas (Banco - Competencias Genéricas y Técnicas)"
+  },
+  "item": [
+    {
+      "name": "Crear Banco - Competencias Genéricas (15 preguntas)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": {
+            "nombre": "Banco - Competencias Genéricas (Razonamiento, Lectura Crítica, Cuantitativo)",
+            "descripcion": "Colección de 15 preguntas (genéricas y técnicas)",
+            "duracion_minutos": 60,
+            "preguntas": [
+              {
+                "enunciado": "Una empresa reporta que sus ventas crecieron 20% el primer año y 25% el segundo año. Si inicialmente vendía 1.000 unidades, ¿cuántas vende al final del segundo año?",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "1.450", "es_correcta": false },
+                  { "texto_opcion": "1.500", "es_correcta": false },
+                  { "texto_opcion": "1.440", "es_correcta": false },
+                  { "texto_opcion": "1.560", "es_correcta": true }
+                ]
+              },
+              {
+                "enunciado": "Un informe indica: \"Las políticas públicas deben diseñarse con base en evidencia empírica y no únicamente en percepciones sociales.\" La tesis principal del texto es que:",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "Las percepciones sociales son irrelevantes", "es_correcta": false },
+                  { "texto_opcion": "La evidencia empírica debe sustentar las decisiones públicas", "es_correcta": true },
+                  { "texto_opcion": "Las políticas públicas no deben cambiar", "es_correcta": false },
+                  { "texto_opcion": "La sociedad no participa en la política", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "Si todos los ingenieros saben programar y algunos programadores son docentes, entonces:",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "Todos los docentes son ingenieros", "es_correcta": false },
+                  { "texto_opcion": "Algunos docentes saben programar", "es_correcta": true },
+                  { "texto_opcion": "Ningún docente es ingeniero", "es_correcta": false },
+                  { "texto_opcion": "Todos los programadores son ingenieros", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "Una base de datos contiene 10.000 registros y 2% presentan errores. ¿Cuántos registros son incorrectos?",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "BAJO",
+                "opciones": [
+                  { "texto_opcion": "20", "es_correcta": false },
+                  { "texto_opcion": "200", "es_correcta": true },
+                  { "texto_opcion": "500", "es_correcta": false },
+                  { "texto_opcion": "2.000", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "Si una gráfica muestra tendencia creciente lineal, se puede afirmar que:",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "La variable dependiente disminuye", "es_correcta": false },
+                  { "texto_opcion": "Existe relación directamente proporcional", "es_correcta": true },
+                  { "texto_opcion": "No existe correlación", "es_correcta": false },
+                  { "texto_opcion": "La pendiente es negativa", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "En una arquitectura REST, el método HTTP utilizado para actualizar parcialmente un recurso es:",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "GET", "es_correcta": false },
+                  { "texto_opcion": "POST", "es_correcta": false },
+                  { "texto_opcion": "PATCH", "es_correcta": true },
+                  { "texto_opcion": "DELETE", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "Una clave primaria en una base de datos relacional debe ser:",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "Opcional", "es_correcta": false },
+                  { "texto_opcion": "Única y no nula", "es_correcta": true },
+                  { "texto_opcion": "Repetible", "es_correcta": false },
+                  { "texto_opcion": "Texto largo obligatorio", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "El principio de \"menor privilegio\" implica que:",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "Todos los usuarios tienen acceso total", "es_correcta": false },
+                  { "texto_opcion": "Los usuarios solo acceden a lo estrictamente necesario", "es_correcta": true },
+                  { "texto_opcion": "El administrador no tiene restricciones", "es_correcta": false },
+                  { "texto_opcion": "No se usan contraseñas", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "El protocolo HTTP opera en la capa:",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "Física", "es_correcta": false },
+                  { "texto_opcion": "Transporte", "es_correcta": false },
+                  { "texto_opcion": "Aplicación", "es_correcta": true },
+                  { "texto_opcion": "Enlace", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "¿Cuál es la complejidad promedio del algoritmo de búsqueda binaria?",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "BAJO",
+                "opciones": [
+                  { "texto_opcion": "O(n)", "es_correcta": false },
+                  { "texto_opcion": "O(log n)", "es_correcta": true },
+                  { "texto_opcion": "O(n²)", "es_correcta": false },
+                  { "texto_opcion": "O(1)", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "Un ingeniero detecta una falla crítica en producción que afecta datos de usuarios. Su acción ética inmediata debe ser:",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "Ignorarla si no es visible", "es_correcta": false },
+                  { "texto_opcion": "Reportarla y documentarla", "es_correcta": true },
+                  { "texto_opcion": "Eliminar los registros", "es_correcta": false },
+                  { "texto_opcion": "Culpar al equipo anterior", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "Una decisión basada en análisis costo-beneficio busca:",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "Maximizar emociones", "es_correcta": false },
+                  { "texto_opcion": "Minimizar datos", "es_correcta": false },
+                  { "texto_opcion": "Optimizar recursos", "es_correcta": true },
+                  { "texto_opcion": "Aumentar burocracia", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "Si la media y la mediana son iguales en un conjunto de datos, se puede inferir que:",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "Hay alta asimetría", "es_correcta": false },
+                  { "texto_opcion": "Existe distribución simétrica", "es_correcta": true },
+                  { "texto_opcion": "No hay datos", "es_correcta": false },
+                  { "texto_opcion": "Todos los valores son iguales", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "En metodologías ágiles, el artefacto que contiene la lista priorizada de requisitos es:",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "Sprint", "es_correcta": false },
+                  { "texto_opcion": "Backlog", "es_correcta": true },
+                  { "texto_opcion": "Kanban", "es_correcta": false },
+                  { "texto_opcion": "Scrum Master", "es_correcta": false }
+                ]
+              },
+              {
+                "enunciado": "Un sistema se considera robusto cuando:",
+                "tipo_pregunta": "UNICA",
+                "nivel_dificultad": "MEDIO",
+                "opciones": [
+                  { "texto_opcion": "No falla nunca", "es_correcta": false },
+                  { "texto_opcion": "Tolera fallos y mantiene funcionalidad", "es_correcta": true },
+                  { "texto_opcion": "Es costoso", "es_correcta": false },
+                  { "texto_opcion": "Es complejo", "es_correcta": false }
+                ]
+              }
+            ]
+          },
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/simulacros", "host": ["{{base_url}}"], "path": ["simulacros"] }
+      },
+      "response": []
+    }
+  ]
+}
