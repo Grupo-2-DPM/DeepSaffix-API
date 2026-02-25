@@ -51,13 +51,13 @@ npm run start:dev
 
 ### Simulacros (Simulation)
 
-* `POST /simulation` — Crear un simulacro junto con sus preguntas y opciones en una sola petición
-* `GET /simulation` — Listar simulacros
-* `GET /simulation/:id` — Obtener simulacro por ID (incluye preguntas y opciones)
-* `POST /simulation/:id/intentos` — Iniciar intento de simulacro para un usuario
-* `POST /simulation/intentos/:id/respuestas` — Enviar respuestas de un intento
-* `POST /simulation/intentos/:id/finalizar` — Finalizar intento y calcular resultado
-* `GET /simulation/usuarios/:userId/intentos` — Listar intentos de simulacros realizados por un usuario
+* `POST /simulacros` — Crear un simulacro junto con sus preguntas y opciones en una sola petición
+* `GET /simulacros` — Listar simulacros
+* `GET /simulacros/:id` — Obtener simulacro por ID (incluye preguntas y opciones)
+* `POST /simulacros/:id/intentos` — Iniciar intento de simulacro para un usuario
+* `POST /simulacros/intentos/:id/respuestas` — Enviar respuestas de un intento
+* `POST /simulacros/intentos/:id/finalizar` — Finalizar intento y calcular resultado
+* `GET /simulacros/usuarios/:userId/intentos` — Listar intentos de simulacros realizados por un usuario
 
 ---
 
