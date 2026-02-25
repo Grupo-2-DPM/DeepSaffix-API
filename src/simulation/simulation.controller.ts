@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Patch,
   HttpCode,
   Param,
   ParseIntPipe,
@@ -12,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { SimulationService } from './simulation.service';
 import { CreateSimulacroDto } from './dto/create-simulacro.dto';
+import { UpdateSimulacroDto } from './dto/update-simulacro.dto';
 import { CreateAttemptDto } from './dto/create-attempt.dto';
 import { SubmitAnswersDto } from './dto/submit-answers.dto';
 
@@ -81,6 +83,13 @@ export class SimulationController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);
+  }
+
+  // Endpoint para editar un simulacro
+  @Patch(':id')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  edit(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateSimulacroDto) {
+    return this.service.update(id, body);
   }
 
   // Endpoint para eliminar un simulacro por su ID

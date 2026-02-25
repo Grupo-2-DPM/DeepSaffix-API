@@ -1,26 +1,21 @@
-import {
-  IsArray,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateQuestionDto } from './create-question.dto';
 import { PoolCriteriaDto } from './pool-criteria.dto';
 
-export class CreateSimulacroDto {
+export class UpdateSimulacroDto {
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  nombre: string;
+  nombre?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   descripcion?: string;
 
+  @IsOptional()
   @IsNumber()
-  duracion_minutos: number;
+  duracion_minutos?: number;
 
   @IsOptional()
   @IsArray()
