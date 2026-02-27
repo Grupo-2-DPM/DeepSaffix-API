@@ -77,6 +77,7 @@ Ubicación: carpeta `/postman`
 * `Usuarios.postman_collection.json` — Requests para gestión de usuarios
 * `Simulation.postman_collection.json` — Requests para simulacros e intentos
 * `Perfil.postman_collection.json` — Requests para perfiles académicos
+* `Questions.potman_collection.json` — Requests para banco de preguntas
 
 Estas colecciones evitan crear los requests manualmente.
 
@@ -220,3 +221,4 @@ Invoke-RestMethod -Uri 'http://localhost:3000/simulacros/usuarios/1/intentos' -M
 Reemplacen el **ID del usuario** según corresponda.
 
 Este endpoint devuelve un listado con todos los intentos del usuario, incluyendo los detalles del simulacro asociado a cada uno.
+
