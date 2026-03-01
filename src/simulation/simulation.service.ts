@@ -1,3 +1,4 @@
+// simulation.service.ts
 import {
   Injectable,
   NotFoundException,
@@ -6,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSimulacroDto } from './dto/create-simulacro.dto';
+import { UpdateSimulacroDto } from './dto/update-simulacro.dto';
 import { CreateAttemptDto } from './dto/create-attempt.dto';
 import { SubmitAnswersDto } from './dto/submit-answers.dto';
 
@@ -13,275 +15,292 @@ import { SubmitAnswersDto } from './dto/submit-answers.dto';
 export class SimulationService {
   constructor(private prisma: PrismaService) {}
 
-  // Método para crear un nuevo simulacro
+  // ========================
+  // MÉTODOS PARA SIMULACROS
+  // ========================
+
   async create(createDto: CreateSimulacroDto) {
-    // Si se proporciona un pool, tomar preguntas existentes de la base de datos
-    // en vez de crear preguntas nuevas
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const pool: any = (createDto as any).pool;
+    try {
+      // 1. Crear el simulacro base
+      const simulacro = await this.prisma.simulacro.create({
+        data: {
+          nombre: createDto.nombre,
+          descripcion: createDto.descripcion,
+          duracion_minutos: createDto.duracion_minutos,
+        },
+      });
 
-    if (pool && (!createDto.preguntas || createDto.preguntas.length === 0)) {
-      const cantidad = Number(pool.cantidad) || 0;
-      if (cantidad <= 0) throw new InternalServerErrorException('Cantidad inválida en pool');
+      // 2. Si hay pool o preguntaIds, asociar preguntas
+      let preguntaIds: number[] = [];
 
-      const whereClauses: string[] = [];
-      if (pool.nivel_dificultad) whereClauses.push(`nivel_dificultad = '${pool.nivel_dificultad}'`);
-      if (pool.tipo_pregunta) whereClauses.push(`tipo_pregunta = '${pool.tipo_pregunta}'`);
-      const whereSql = whereClauses.length ? `WHERE ${whereClauses.join(' AND ')}` : '';
-
-      // Selección aleatoria de preguntas usando SQL raw (Postgres)
-      const raw = await this.prisma.$queryRawUnsafe(`SELECT id_pregunta FROM \"Pregunta\" ${whereSql} ORDER BY random() LIMIT ${cantidad}`) as Array<{ id_pregunta: number }>;
-      const ids: number[] = raw.map((r) => r.id_pregunta).filter(Boolean);
-      if (ids.length < cantidad) throw new NotFoundException('No hay suficientes preguntas en el pool que cumplan los criterios');
-
-      try {
-        const result = await this.prisma.$transaction(async (tx) => {
-          const s = await tx.simulacro.create({
-            data: {
-              nombre: createDto.nombre,
-              descripcion: createDto.descripcion,
-              duracion_minutos: createDto.duracion_minutos,
-            },
-          });
-
-          await tx.pregunta.updateMany({
-            where: { id_pregunta: { in: ids } },
-            data: { id_simulacro: s.id_simulacro },
-          });
-
-          return tx.simulacro.findUnique({
-            where: { id_simulacro: s.id_simulacro },
-            include: { preguntas: { include: { opciones: true } } },
-          });
-        });
-
-        return result;
-      } catch (e) {
-        throw new InternalServerErrorException('Error creando simulacro desde pool: ' + e);
+      if (createDto.pool) {
+        // Caso 1: Selección aleatoria desde pool
+        preguntaIds = await this.getRandomQuestionsFromPool(createDto.pool);
+      } else if (createDto.preguntaIds?.length) {
+        // Caso 2: IDs de preguntas específicas
+        preguntaIds = createDto.preguntaIds;
       }
-    }
 
-    // Si se proporcionan preguntas explícitas, crear simulacro con preguntas nuevas
-    const simulacro = await this.prisma.simulacro.create({
-      data: {
-        nombre: createDto.nombre,
-        descripcion: createDto.descripcion,
-        duracion_minutos: createDto.duracion_minutos,
-        preguntas: createDto.preguntas
-          ? {
-              create: createDto.preguntas.map((p) => ({
-                enunciado: p.enunciado,
-                tipo_pregunta: p.tipo_pregunta,
-                nivel_dificultad: p.nivel_dificultad,
-                opciones: {
-                  create: p.opciones.map((o) => ({
-                    texto_opcion: o.texto_opcion,
-                    es_correcta: o.es_correcta,
-                  })),
-                },
-              })),
-            }
-          : undefined,
-      },
+      // 3. Asociar preguntas al simulacro si las hay
+      if (preguntaIds.length > 0) {
+        await this.associateQuestionsToSimulacro(
+          simulacro.id_simulacro,
+          preguntaIds,
+        );
+      }
+
+      // 4. Retornar simulacro con sus preguntas
+      return this.findOne(simulacro.id_simulacro);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error creando simulacro: ${error.message}`,
+      );
+    }
+  }
+
+  async findAll() {
+    return this.prisma.simulacro.findMany({
       include: {
-        preguntas: { include: { opciones: true } },
+        simulacroPreguntas: {
+          include: {
+            pregunta: {
+              include: {
+                opciones: true,
+              },
+            },
+          },
+          orderBy: {
+            orden: 'asc',
+          },
+        },
       },
     });
+  }
+
+  async findOne(id: number) {
+    const simulacro = await this.prisma.simulacro.findUnique({
+      where: { id_simulacro: id },
+      include: {
+        simulacroPreguntas: {
+          include: {
+            pregunta: {
+              include: {
+                opciones: true,
+              },
+            },
+          },
+          orderBy: {
+            orden: 'asc',
+          },
+        },
+      },
+    });
+
+    if (!simulacro) {
+      throw new NotFoundException(`Simulacro con ID ${id} no encontrado`);
+    }
 
     return simulacro;
   }
 
-  // Método para listar todos los simulacros
-  async findAll() {
-    return this.prisma.simulacro.findMany({
-      include: { preguntas: { include: { opciones: true } } },
-    });
+  async update(id: number, updateDto: UpdateSimulacroDto) {
+    // Verificar que existe
+    await this.findOne(id);
+
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        // 1. Actualizar datos básicos del simulacro
+        await tx.simulacro.update({
+          where: { id_simulacro: id },
+          data: {
+            nombre: updateDto.nombre,
+            descripcion: updateDto.descripcion,
+            duracion_minutos: updateDto.duracion_minutos,
+          },
+        });
+
+        // 2. Si hay nuevas preguntas, reemplazar las existentes
+        if (updateDto.pool || updateDto.preguntaIds) {
+          // Eliminar asociaciones actuales
+          await tx.simulacroPregunta.deleteMany({
+            where: { id_simulacro: id },
+          });
+
+          let preguntaIds: number[] = [];
+
+          if (updateDto.pool) {
+            preguntaIds = await this.getRandomQuestionsFromPool(updateDto.pool);
+          } else if (updateDto.preguntaIds?.length) {
+            preguntaIds = updateDto.preguntaIds;
+          }
+
+          if (preguntaIds.length > 0) {
+            await this.associateQuestionsToSimulacro(id, preguntaIds, tx);
+          }
+        }
+
+        return this.findOne(id);
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error actualizando simulacro: ${error.message}`,
+      );
+    }
   }
 
-  // Método para obtener un simulacro por su ID
-  async findOne(id: number) {
-    return this.prisma.simulacro.findUnique({
-      where: { id_simulacro: id },
-      include: { preguntas: { include: { opciones: true } } },
-    });
-  }
-
-  // Método para eliminar un simulacro por su ID
   async remove(id: number) {
-    const existing = await this.prisma.simulacro.findUnique({
+    await this.findOne(id);
+    await this.prisma.simulacro.delete({
       where: { id_simulacro: id },
     });
-    if (!existing)
-      throw new NotFoundException(`Simulacro con ID ${id} no encontrado`);
-
-    await this.prisma.simulacro.delete({ where: { id_simulacro: id } });
-    return;
   }
 
-  // Método para actualizar un simulacro (metadata y reemplazar preguntas)
-  async update(id: number, updateDto: any) {
-    const existing = await this.prisma.simulacro.findUnique({ where: { id_simulacro: id } });
-    if (!existing) throw new NotFoundException(`Simulacro con ID ${id} no encontrado`);
+  // ========================
+  // MÉTODOS PARA INTENTOS
+  // ========================
 
-    // Si se proporciona pool, reasignar preguntas desde el pool
-    const pool: any = updateDto.pool;
-    if (pool && (!updateDto.preguntas || updateDto.preguntas.length === 0)) {
-      const cantidad = Number(pool.cantidad) || 0;
-      if (cantidad <= 0) throw new InternalServerErrorException('Cantidad inválida en pool');
-
-      const whereClauses: string[] = [];
-      if (pool.nivel_dificultad) whereClauses.push(`nivel_dificultad = '${pool.nivel_dificultad}'`);
-      if (pool.tipo_pregunta) whereClauses.push(`tipo_pregunta = '${pool.tipo_pregunta}'`);
-      const whereSql = whereClauses.length ? `WHERE ${whereClauses.join(' AND ')}` : '';
-
-      const raw = await this.prisma.$queryRawUnsafe(`SELECT id_pregunta FROM \"Pregunta\" ${whereSql} ORDER BY random() LIMIT ${cantidad}`) as Array<{ id_pregunta: number }>;
-      const ids: number[] = raw.map((r) => r.id_pregunta).filter(Boolean);
-      if (ids.length < cantidad) throw new NotFoundException('No hay suficientes preguntas en el pool que cumplan los criterios');
-
-      try {
-        const result = await this.prisma.$transaction(async (tx) => {
-          // eliminar preguntas actuales y sus opciones
-          const existingPregs = await tx.pregunta.findMany({ where: { id_simulacro: id } });
-          const existingIds = existingPregs.map((p) => p.id_pregunta);
-          if (existingIds.length) {
-            await tx.opcionPregunta.deleteMany({ where: { id_pregunta: { in: existingIds } } });
-            await tx.pregunta.deleteMany({ where: { id_simulacro: id } });
-          }
-
-          // crear metadatos
-          await tx.simulacro.update({ where: { id_simulacro: id }, data: { nombre: updateDto.nombre ?? existing.nombre, descripcion: updateDto.descripcion ?? existing.descripcion, duracion_minutos: updateDto.duracion_minutos ?? existing.duracion_minutos } });
-
-          // reasignar preguntas seleccionadas del pool al simulacro
-          await tx.pregunta.updateMany({ where: { id_pregunta: { in: ids } }, data: { id_simulacro: id } });
-
-          return tx.simulacro.findUnique({ where: { id_simulacro: id }, include: { preguntas: { include: { opciones: true } } } });
-        });
-        return result;
-      } catch (e) {
-        throw new InternalServerErrorException('Error actualizando simulacro desde pool: ' + e);
-      }
-    }
-
-    // Si se proporcionan preguntas explícitas, reemplazar preguntas existentes
-    if (updateDto.preguntas && updateDto.preguntas.length > 0) {
-      try {
-        const result = await this.prisma.$transaction(async (tx) => {
-          const existingPregs = await tx.pregunta.findMany({ where: { id_simulacro: id } });
-          const existingIds = existingPregs.map((p) => p.id_pregunta);
-          if (existingIds.length) {
-            await tx.opcionPregunta.deleteMany({ where: { id_pregunta: { in: existingIds } } });
-            await tx.pregunta.deleteMany({ where: { id_simulacro: id } });
-          }
-
-          await tx.simulacro.update({ where: { id_simulacro: id }, data: { nombre: updateDto.nombre ?? existing.nombre, descripcion: updateDto.descripcion ?? existing.descripcion, duracion_minutos: updateDto.duracion_minutos ?? existing.duracion_minutos } });
-
-          for (const p of updateDto.preguntas) {
-            await tx.pregunta.create({ data: { enunciado: p.enunciado, tipo_pregunta: p.tipo_pregunta, nivel_dificultad: p.nivel_dificultad, id_simulacro: id, opciones: { create: p.opciones.map((o: any) => ({ texto_opcion: o.texto_opcion, es_correcta: o.es_correcta })) } } });
-          }
-
-          return tx.simulacro.findUnique({ where: { id_simulacro: id }, include: { preguntas: { include: { opciones: true } } } });
-        });
-
-        return result;
-      } catch (e) {
-        throw new InternalServerErrorException('Error actualizando simulacro: ' + e);
-      }
-    }
-
-    // Si solo se actualizan metadatos
-    return this.prisma.simulacro.update({ where: { id_simulacro: id }, data: { nombre: updateDto.nombre ?? existing.nombre, descripcion: updateDto.descripcion ?? existing.descripcion, duracion_minutos: updateDto.duracion_minutos ?? existing.duracion_minutos }, include: { preguntas: { include: { opciones: true } } } });
-  }
-
-  // Método para iniciar un nuevo intento de simulacro
-  async startAttempt(createDto: CreateAttemptDto) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const id_simulacro = createDto['id_simulacro'];
-
+  async startAttempt(createDto: CreateAttemptDto, simulacroId: number) {
+    // Verificar usuario
     const usuario = await this.prisma.usuario.findUnique({
       where: { id_usuario: createDto.id_usuario },
     });
-    if (!usuario) throw new NotFoundException('Usuario no encontrado');
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
 
+    // Verificar simulacro
     const simulacro = await this.prisma.simulacro.findUnique({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      where: { id_simulacro },
+      where: { id_simulacro: simulacroId },
+      include: {
+        simulacroPreguntas: true,
+      },
     });
-    if (!simulacro) throw new NotFoundException('Simulacro no encontrado');
+    if (!simulacro) {
+      throw new NotFoundException('Simulacro no encontrado');
+    }
+
+    if (simulacro.simulacroPreguntas.length === 0) {
+      throw new BadRequestException(
+        'El simulacro no tiene preguntas asociadas',
+      );
+    }
 
     try {
       const intento = await this.prisma.intentoSimulacro.create({
         data: {
           id_usuario: createDto.id_usuario,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          id_simulacro: id_simulacro,
+          id_simulacro: simulacroId,
           fecha_inicio: new Date(),
         },
       });
+
       return intento;
-    } catch (e) {
-      throw new InternalServerErrorException('Error creando intento' + e);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error creando intento: ${error.message}`,
+      );
     }
   }
 
-  // Método para enviar respuestas de un intento
-  async submitAnswers(id_intento: number, dto: SubmitAnswersDto) {
+  async submitAnswers(intentoId: number, dto: SubmitAnswersDto) {
     const intento = await this.prisma.intentoSimulacro.findUnique({
-      where: { id_intento },
-      include: { simulacro: true },
+      where: { id_intento: intentoId },
+      include: {
+        simulacro: true,
+      },
     });
 
     if (!intento) {
       throw new NotFoundException('Intento no encontrado');
     }
 
-    // Validación: intento ya finalizado
+    // Validaciones
     if (intento.fecha_fin) {
-      throw new BadRequestException(
-        'Este intento ya ha sido finalizado, lo sentimos',
-      );
+      throw new BadRequestException('Este intento ya ha sido finalizado');
     }
 
-    // Validación: tiempo máximo del simulacro
     const tiempoTranscurrido =
       (new Date().getTime() - intento.fecha_inicio.getTime()) / 60000;
     if (tiempoTranscurrido > intento.simulacro.duracion_minutos) {
       throw new BadRequestException('Se ha excedido el tiempo del simulacro');
     }
 
-    // Validar que todas las opciones existan
-    const opcionIds = dto.selected_option_ids;
-    const opcionesCount = await this.prisma.opcionPregunta.count({
+    // Validar que todas las respuestas correspondan a preguntas del intento
+    const simulacroPreguntaIds = dto.respuestas.map(
+      (r) => r.id_simulacro_pregunta,
+    );
+
+    const preguntasValidas = await this.prisma.simulacroPregunta.count({
+      where: {
+        id_simulacro_pregunta: { in: simulacroPreguntaIds },
+        id_simulacro: intento.id_simulacro,
+      },
+    });
+
+    if (preguntasValidas !== simulacroPreguntaIds.length) {
+      throw new BadRequestException(
+        'Algunas preguntas no pertenecen a este simulacro',
+      );
+    }
+
+    // Validar que las opciones existan
+    const opcionIds = dto.respuestas.map((r) => r.id_opcion);
+    const opcionesValidas = await this.prisma.opcionPregunta.count({
       where: { id_opcion: { in: opcionIds } },
     });
-    if (opcionesCount !== opcionIds.length) {
+
+    if (opcionesValidas !== opcionIds.length) {
       throw new NotFoundException('Algunas opciones no existen');
     }
 
-    // Preparar datos para insertar
-    const answersData = opcionIds.map((id_opcion) => ({
-      id_intento: id_intento,
-      id_opcion,
-    }));
+    // Guardar respuestas
+    try {
+      await this.prisma.$transaction(
+        dto.respuestas.map((respuesta) =>
+          this.prisma.respuesta.upsert({
+            where: {
+              id_intento_id_simulacro_pregunta: {
+                id_intento: intentoId,
+                id_simulacro_pregunta: respuesta.id_simulacro_pregunta,
+              },
+            },
+            update: {
+              id_opcion: respuesta.id_opcion,
+            },
+            create: {
+              id_intento: intentoId,
+              id_simulacro_pregunta: respuesta.id_simulacro_pregunta,
+              id_opcion: respuesta.id_opcion,
+            },
+          }),
+        ),
+      );
 
-    await this.prisma.respuesta.createMany({
-      data: answersData,
-      skipDuplicates: true,
-    });
-
-    return { inserted: answersData.length };
+      return { message: 'Respuestas guardadas exitosamente' };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error guardando respuestas: ${error.message}`,
+      );
+    }
   }
 
-  // Método para finalizar un intento de simulacro
-  async finishAttempt(id_intento: number) {
+  async finishAttempt(intentoId: number) {
     const intento = await this.prisma.intentoSimulacro.findUnique({
-      where: { id_intento },
-      include: { simulacro: true },
+      where: { id_intento: intentoId },
+      include: {
+        simulacro: true,
+        respuestas: {
+          include: {
+            opcion: true,
+          },
+        },
+      },
     });
 
-    if (!intento)
-      throw new NotFoundException(`Intento ${id_intento} no encontrado`);
+    if (!intento) {
+      throw new NotFoundException(`Intento ${intentoId} no encontrado`);
+    }
 
-    // Validación: no finalizar dos veces
     if (intento.fecha_fin) {
       throw new BadRequestException(
         'Este intento ya fue finalizado previamente',
@@ -289,60 +308,156 @@ export class SimulationService {
     }
 
     const fecha_fin = new Date();
-    // Calcular tiempo usado pero no más que la duración máxima
-    let tiempoMin = Math.round(
+    let tiempoUtilizado = Math.round(
       (fecha_fin.getTime() - intento.fecha_inicio.getTime()) / 60000,
     );
-    if (tiempoMin > intento.simulacro.duracion_minutos) {
-      tiempoMin = intento.simulacro.duracion_minutos;
+
+    // Limitar al tiempo máximo del simulacro
+    if (tiempoUtilizado > intento.simulacro.duracion_minutos) {
+      tiempoUtilizado = intento.simulacro.duracion_minutos;
     }
 
-    const correctCount = await this.prisma.respuesta.count({
-      where: { id_intento, opcion: { es_correcta: true } },
-    });
+    // Calcular puntaje
+    const respuestasCorrectas = intento.respuestas.filter(
+      (r) => r.opcion.es_correcta,
+    ).length;
 
-    await this.prisma.intentoSimulacro.update({
-      where: { id_intento },
+    const intentoActualizado = await this.prisma.intentoSimulacro.update({
+      where: { id_intento: intentoId },
       data: {
         fecha_fin,
-        tiempo_utilizado: tiempoMin,
-        puntaje_total: correctCount,
+        tiempo_utilizado: tiempoUtilizado,
+        puntaje_total: respuestasCorrectas,
       },
-    });
-
-    return this.prisma.intentoSimulacro.findUnique({
-      where: { id_intento },
       include: {
-        respuestas: { include: { opcion: true } },
+        respuestas: {
+          include: {
+            opcion: {
+              include: {
+                pregunta: true,
+              },
+            },
+          },
+        },
         usuario: true,
         simulacro: true,
       },
     });
-  }
-  // Método para obtener un intento por su ID
-  async getAttempt(id_intento: number) {
-    return this.prisma.intentoSimulacro.findUnique({
-      where: { id_intento },
-      include: {
-        respuestas: { include: { opcion: true } },
-        usuario: true,
-        simulacro: true,
-      },
-    });
+
+    return intentoActualizado;
   }
 
-  async findAttemptsById(id_usuario: number) {
-    return this.prisma.intentoSimulacro.findMany({
-      where: { id_usuario },
-      orderBy: { fecha_inicio: 'desc' },
-      include: { simulacro: true, respuestas: { include: { opcion: true } } },
+  async getAttempt(intentoId: number) {
+    const intento = await this.prisma.intentoSimulacro.findUnique({
+      where: { id_intento: intentoId },
+      include: {
+        respuestas: {
+          include: {
+            opcion: {
+              include: {
+                pregunta: true,
+              },
+            },
+          },
+        },
+        usuario: true,
+        simulacro: {
+          include: {
+            simulacroPreguntas: {
+              include: {
+                pregunta: {
+                  include: {
+                    opciones: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
+
+    if (!intento) {
+      throw new NotFoundException(`Intento ${intentoId} no encontrado`);
+    }
+
+    return intento;
   }
-  // Método para obtener los intentos realizados por un usuario
+
   async findAttemptsByUser(userId: number) {
     return this.prisma.intentoSimulacro.findMany({
       where: { id_usuario: userId },
-      include: { simulacro: true },
+      include: {
+        simulacro: true,
+        respuestas: {
+          include: {
+            opcion: true,
+          },
+        },
+      },
+      orderBy: { fecha_inicio: 'desc' },
+    });
+  }
+
+  // ========================
+  // MÉTODOS PRIVADOS UTILITARIOS
+  // ========================
+
+  private async getRandomQuestionsFromPool(pool: {
+    cantidad: number;
+    nivel_dificultad?: string;
+    tipo_pregunta?: string;
+  }): Promise<number[]> {
+    const { cantidad, nivel_dificultad, tipo_pregunta } = pool;
+
+    if (cantidad <= 0) {
+      throw new BadRequestException('La cantidad debe ser mayor a 0');
+    }
+
+    // Construir filtros
+    const where: any = {};
+
+    if (nivel_dificultad) {
+      where.nivel_dificultad = nivel_dificultad;
+    }
+
+    if (tipo_pregunta) {
+      where.tipo_pregunta = tipo_pregunta;
+    }
+
+    // Obtener IDs de preguntas que cumplan los criterios
+    const preguntas = await this.prisma.pregunta.findMany({
+      where,
+      select: { id_pregunta: true },
+    });
+
+    if (preguntas.length < cantidad) {
+      throw new NotFoundException(
+        `No hay suficientes preguntas (${preguntas.length} disponibles, se requieren ${cantidad})`,
+      );
+    }
+
+    // Selección aleatoria
+    const shuffled = preguntas.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, cantidad).map((p) => p.id_pregunta);
+  }
+
+  private async associateQuestionsToSimulacro(
+    simulacroId: number,
+    preguntaIds: number[],
+    tx?: any,
+  ) {
+    const prisma = tx || this.prisma;
+
+    const simulacroPreguntasData = preguntaIds.map((id_pregunta, index) => ({
+      id_simulacro: simulacroId,
+      id_pregunta,
+      orden: index + 1,
+    }));
+
+    await prisma.simulacroPregunta.createMany({
+      data: simulacroPreguntasData,
+      skipDuplicates: true,
     });
   }
 }

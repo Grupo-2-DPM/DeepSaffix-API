@@ -18,44 +18,30 @@ import { UpdateOpcionDto } from './dto/update-opcion.dto';
 export class OpcionesController {
   constructor(private readonly opcionesService: OpcionesService) {}
 
-  // POST /opciones - Crear opción
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createDto: CreateOpcionDto) {
-    return this.opcionesService.create(createDto);
+  create(@Body() dto: CreateOpcionDto) {
+    return this.opcionesService.create(dto);
   }
 
-  // GET /opciones - Listar todas
   @Get()
   findAll() {
     return this.opcionesService.findAll();
   }
 
-  // GET /opciones/pregunta/:idPregunta - Opciones de una pregunta
-  @Get('pregunta/:idPregunta')
-  findByPregunta(@Param('idPregunta', ParseIntPipe) idPregunta: number) {
-    return this.opcionesService.findByPregunta(idPregunta);
-  }
-
-  // GET /opciones/:id - Obtener por ID
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.opcionesService.findOne(id);
   }
 
-  // PATCH /opciones/:id - Actualizar
   @Patch(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateDto: UpdateOpcionDto,
-  ) {
-    return this.opcionesService.update(id, updateDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateOpcionDto) {
+    return this.opcionesService.update(id, dto);
   }
 
-  // DELETE /opciones/:id - Eliminar
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    await this.opcionesService.remove(id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.opcionesService.remove(id);
   }
 }

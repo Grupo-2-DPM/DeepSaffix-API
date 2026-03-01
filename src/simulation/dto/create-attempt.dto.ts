@@ -1,6 +1,7 @@
-import { IsInt } from 'class-validator';
+// dto/create-attempt.dto.ts
+import { IsNumber } from 'class-validator';
 
 export class CreateAttemptDto {
-  @IsInt()
+  @IsNumber()
   id_usuario: number;
 }

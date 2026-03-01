@@ -22,7 +22,6 @@ import { RespuestasModule } from './respuestas/respuestas.module';
     PerfilAcademicoModule,
     SimulationModule,
     PreguntasModule,
-    SimulationModule,
     PreguntasModule,
     OpcionesModule,
     IntentosModule,

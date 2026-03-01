@@ -1,35 +1,47 @@
+// dto/create-simulacro.dto.ts
 import {
-  IsArray,
-  IsNotEmpty,
+  IsString,
   IsNumber,
   IsOptional,
-  IsString,
+  IsArray,
   ValidateNested,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { CreateQuestionDto } from './create-question.dto';
-import { PoolCriteriaDto } from './pool-criteria.dto';
+
+class PoolFilterDto {
+  @IsNumber()
+  @Min(1)
+  cantidad: number;
+
+  @IsOptional()
+  @IsString()
+  nivel_dificultad?: string;
+
+  @IsOptional()
+  @IsString()
+  tipo_pregunta?: string;
+}
 
 export class CreateSimulacroDto {
   @IsString()
-  @IsNotEmpty()
   nombre: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   descripcion?: string;
 
   @IsNumber()
+  @Min(1)
   duracion_minutos: number;
 
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateQuestionDto)
-  preguntas?: CreateQuestionDto[];
+  @ValidateNested()
+  @Type(() => PoolFilterDto)
+  pool?: PoolFilterDto;
 
   @IsOptional()
-  @ValidateNested()
-  @Type(() => PoolCriteriaDto)
-  pool?: PoolCriteriaDto;
+  @IsArray()
+  @IsNumber({}, { each: true })
+  preguntaIds?: number[]; // Array de IDs de preguntas existentes
 }

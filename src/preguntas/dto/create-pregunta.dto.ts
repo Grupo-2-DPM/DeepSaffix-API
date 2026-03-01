@@ -1,4 +1,4 @@
-﻿import { IsEnum, IsInt, IsNotEmpty, IsString } from 'class-validator';
+﻿import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { TipoPregunta, NivelDificultad } from '@prisma/client';
 
 export class CreatePreguntaDto {
@@ -15,6 +15,4 @@ export class CreatePreguntaDto {
     message: 'Nivel de dificultad inválido (BAJO, MEDIO, ALTO)',
   })
   nivel_dificultad: NivelDificultad;
-  @IsInt()
-  id_simulacro: number; // <--- Campo obligatorio para Prisma
 }

@@ -25,14 +25,32 @@ export class PreguntasController {
   create(@Body() createDto: CreatePreguntaDto) {
     return this.preguntasService.create(createDto);
   }
-
-  // GET /preguntas - Listar todas (con filtros opcionales)
+  // GET /preguntas - Listar todas (con filtros opcionales, búsqueda y paginación)
   @Get()
-  findAll(@Query('tipo') tipo?: string, @Query('nivel') nivel?: string) {
-    if (tipo || nivel) {
-      return this.preguntasService.findByFilters(tipo, nivel);
-    }
-    return this.preguntasService.findAll();
+  async findAll(
+    @Query('tipo') tipo?: string,
+    @Query('nivel') nivel?: string,
+    @Query('search') search?: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+    @Query('orderField') orderField?: string,
+    @Query('orderDir') orderDir?: 'asc' | 'desc',
+  ) {
+    // Construir filtros dinámicos
+    const filters: Record<string, any> = {};
+    if (tipo) filters.tipo_pregunta = tipo;
+    if (nivel) filters.nivel_dificultad = nivel;
+
+    // Llamar al servicio genérico
+    return this.preguntasService.findByFilters({
+      filters,
+      search,
+      skip: skip ? parseInt(skip) : undefined,
+      take: take ? parseInt(take) : undefined,
+      orderBy: orderField
+        ? { field: orderField, direction: orderDir || 'asc' }
+        : undefined,
+    });
   }
 
   // GET /preguntas/:id - Obtener por ID

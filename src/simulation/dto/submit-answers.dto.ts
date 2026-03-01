@@ -1,8 +1,18 @@
-import { IsArray, ArrayNotEmpty, IsInt } from 'class-validator';
+// dto/submit-answers.dto.ts
+import { IsArray, IsNumber, ValidateNested, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+
+class AnswerDto {
+  @IsNumber()
+  id_simulacro_pregunta: number;
+
+  @IsNumber()
+  id_opcion: number;
+}
 
 export class SubmitAnswersDto {
   @IsArray()
-  @ArrayNotEmpty()
-  @IsInt({ each: true })
-  selected_option_ids: number[];
+  @ValidateNested({ each: true })
+  @Type(() => AnswerDto)
+  respuestas: AnswerDto[];
 }
