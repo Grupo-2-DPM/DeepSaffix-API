@@ -17,6 +17,8 @@ import { CreateSimulacroDto } from './dto/create-simulacro.dto';
 import { UpdateSimulacroDto } from './dto/update-simulacro.dto';
 import { CreateAttemptDto } from './dto/create-attempt.dto';
 import { SubmitAnswersDto } from './dto/submit-answers.dto';
+import { Query } from '@nestjs/common';
+import { FilterSimulacroDto } from './dto/filter-simulacro.dto';
 
 @Controller('simulacros')
 export class SimulationController {
@@ -25,18 +27,18 @@ export class SimulationController {
   // ========================
   // ENDPOINTS PARA SIMULACROS
   // ========================
+  // simulation.controller.ts (agregar al final de endpoints de simulacros)
+  @Get()
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async findAll(@Query() filterDto: FilterSimulacroDto) {
+    return this.service.findWithFilters(filterDto);
+  }
 
   @Post()
   @UsePipes(new ValidationPipe({ transform: true }))
   create(@Body() createDto: CreateSimulacroDto) {
     return this.service.create(createDto);
   }
-
-  @Get()
-  findAll() {
-    return this.service.findAll();
-  }
-
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);
@@ -61,33 +63,33 @@ export class SimulationController {
   // ENDPOINTS PARA INTENTOS
   // ========================
 
-  @Post(':id/intentos')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  startAttempt(
-    @Param('id', ParseIntPipe) simulacroId: number,
-    @Body() createDto: CreateAttemptDto,
-  ) {
-    return this.service.startAttempt(createDto, simulacroId);
-  }
+  // @Post(':id/intentos')
+  // @UsePipes(new ValidationPipe({ transform: true }))
+  // startAttempt(
+  //   @Param('id', ParseIntPipe) simulacroId: number,
+  //   @Body() createDto: CreateAttemptDto,
+  // ) {
+  //   return this.service.startAttempt(createDto, simulacroId);
+  // }
 
-  @Get('intentos/:id')
-  getAttempt(@Param('id', ParseIntPipe) id: number) {
-    return this.service.getAttempt(id);
-  }
+  // @Get('intentos/:id')
+  // getAttempt(@Param('id', ParseIntPipe) id: number) {
+  //   return this.service.getAttempt(id);
+  // }
 
-  @Post('intentos/:id/respuestas')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  submitAnswers(
-    @Param('id', ParseIntPipe) intentoId: number,
-    @Body() submitDto: SubmitAnswersDto,
-  ) {
-    return this.service.submitAnswers(intentoId, submitDto);
-  }
+  // @Post('intentos/:id/respuestas')
+  // @UsePipes(new ValidationPipe({ transform: true }))
+  // submitAnswers(
+  //   @Param('id', ParseIntPipe) intentoId: number,
+  //   @Body() submitDto: SubmitAnswersDto,
+  // ) {
+  //   return this.service.submitAnswers(intentoId, submitDto);
+  // }
 
-  @Post('intentos/:id/finalizar')
-  finishAttempt(@Param('id', ParseIntPipe) intentoId: number) {
-    return this.service.finishAttempt(intentoId);
-  }
+  // @Post('intentos/:id/finalizar')
+  // finishAttempt(@Param('id', ParseIntPipe) intentoId: number) {
+  //   return this.service.finishAttempt(intentoId);
+  // }
 
   @Get('usuarios/:userId/intentos')
   getAttemptsByUser(@Param('userId', ParseIntPipe) userId: number) {

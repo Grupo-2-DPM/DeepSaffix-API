@@ -10,7 +10,8 @@ import { CreateSimulacroDto } from './dto/create-simulacro.dto';
 import { UpdateSimulacroDto } from './dto/update-simulacro.dto';
 import { CreateAttemptDto } from './dto/create-attempt.dto';
 import { SubmitAnswersDto } from './dto/submit-answers.dto';
-
+import { FilterSimulacroDto } from './dto/filter-simulacro.dto';
+import { findWithFilters } from 'src/utils/prisma-filter';
 @Injectable()
 export class SimulationService {
   constructor(private prisma: PrismaService) {}
@@ -458,6 +459,46 @@ export class SimulationService {
     await prisma.simulacroPregunta.createMany({
       data: simulacroPreguntasData,
       skipDuplicates: true,
+    });
+  }
+  // simulation.service.ts
+  async findWithFilters(dto: FilterSimulacroDto) {
+    const {
+      nombre,
+      descripcion,
+      skip = 0,
+      take = 20,
+      orderField = 'fecha_creacion',
+      orderDirection = 'desc',
+    } = dto;
+
+    const allowedFields = [
+      'nombre',
+      'descripcion',
+      'duracion_minutos',
+      'fecha_creacion',
+    ];
+
+    return findWithFilters(this.prisma.simulacro, {
+      filters: { nombre, descripcion },
+      skip,
+      take,
+      orderBy: {
+        field: orderField,
+        direction: orderDirection,
+      },
+      include: {
+        simulacroPreguntas: {
+          include: {
+            pregunta: {
+              include: { opciones: true },
+            },
+          },
+          orderBy: { orden: 'asc' },
+        },
+      },
+      allowedFields,
+      searchFields: ['nombre', 'descripcion'],
     });
   }
 }
