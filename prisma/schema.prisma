@@ -87,13 +87,12 @@ model Simulacro {
   duracion_minutos Int
   fecha_creacion   DateTime @default(now())
 
-  preguntas Pregunta[]
-  intentos  IntentoSimulacro[]
+  simulacroPreguntas SimulacroPregunta[]
+  intentos           IntentoSimulacro[]
 }
 
 // ========================
 // MODELO: pregunta
-// N:1 con simulacro
 // ========================
 
 model Pregunta {
@@ -102,10 +101,30 @@ model Pregunta {
   tipo_pregunta    TipoPregunta
   nivel_dificultad NivelDificultad
 
+  simulacroPreguntas SimulacroPregunta[]
+  opciones           OpcionPregunta[]
+}
+
+// ========================
+// TABLA INTERMEDIA: simulacro_pregunta
+// Relación muchos a muchos entre Simulacro y Pregunta
+// ========================
+
+model SimulacroPregunta {
+  id_simulacro_pregunta Int @id @default(autoincrement())
+  orden                 Int? // Opcional: para mantener el orden de las preguntas en el simulacro
+
   id_simulacro Int
   simulacro    Simulacro @relation(fields: [id_simulacro], references: [id_simulacro], onDelete: Cascade)
 
-  opciones OpcionPregunta[]
+  id_pregunta Int
+  pregunta    Pregunta @relation(fields: [id_pregunta], references: [id_pregunta], onDelete: Cascade)
+
+  respuestas Respuesta[]
+
+  @@unique([id_simulacro, id_pregunta])
+  @@index([id_simulacro])
+  @@index([id_pregunta])
 }
 
 // ========================
@@ -147,7 +166,7 @@ model IntentoSimulacro {
 
 // ========================
 // MODELO: respuesta
-// N:1 con intento_simulacro y opcion_pregunta
+// Ahora relaciona intento, simulacro_pregunta y opción
 // ========================
 
 model Respuesta {
@@ -156,10 +175,13 @@ model Respuesta {
   id_intento Int
   intento    IntentoSimulacro @relation(fields: [id_intento], references: [id_intento], onDelete: Cascade)
 
+  id_simulacro_pregunta Int
+  simulacroPregunta     SimulacroPregunta @relation(fields: [id_simulacro_pregunta], references: [id_simulacro_pregunta], onDelete: Cascade)
+
   id_opcion Int
   opcion    OpcionPregunta @relation(fields: [id_opcion], references: [id_opcion], onDelete: Cascade)
 
-  @@unique([id_intento, id_opcion])
+  @@unique([id_intento, id_simulacro_pregunta])
 }
 
 model LoginLog {
